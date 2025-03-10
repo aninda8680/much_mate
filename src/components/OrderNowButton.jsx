@@ -36,7 +36,7 @@ const OrderNowButton = () => {
     <motion.button
       whileTap={{ scale: 0.95 }}
       ref={btnRef}
-      className="relative w-full max-w-xs overflow-hidden rounded-lg bg-purple-500 px-6 py-3 text-lg font-semibold text-white shadow-md transition-all hover:bg-purple-600"
+      className="relative w-full max-w-xs overflow-hidden rounded-lg bg-purple-500 px-6 py-3 text-lg font-semibold text-white shadow-md transition-all hover:bg-purple-600 cursor-pointer" // Added cursor-pointer here
     >
       <span className="pointer-events-none relative z-10 text-white">
         Order Now
