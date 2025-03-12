@@ -199,15 +199,27 @@ const Hero = () => {
         whileHover={{ scale: 1.05 }}
       />
 
-      {/* Text Content with beautiful styling */}
+      {/* Text Content with beautiful styling and Bold Tangerine font */}
       <motion.div
         className="relative z-10 max-w-2xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
+        {/* Font import for Tangerine */}
+        <style>
+          {`
+            @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Yesteryear&display=swap');
+          `}
+        </style>
+
         <motion.h1
-          className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-wide mb-6"
+          className="text-5xl md:text-7xl lg:text-8xl font-extrabold leading-tight tracking-wide mb-6"
+          style={{
+            fontFamily: "'Yesteryear', cursive",
+            fontWeight: 700,
+            textShadow: "1px 1px 3px rgba(0,0,0,0.1)"
+          }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -221,7 +233,7 @@ const Hero = () => {
         </motion.h1>
 
         <motion.p
-          className="text-lg md:text-2xl text-gray-600 max-w-xl mx-auto leading-relaxed mb-8"
+          className="text-lg md:text-2xl text-gray-600 max-w-xl mx-auto leading-relaxed mb-8 font-rubik"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
