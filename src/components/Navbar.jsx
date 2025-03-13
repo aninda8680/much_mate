@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { FiMenu, FiX, FiUser, FiLogIn } from "react-icons/fi";
+import { FiMenu, FiX, FiUser, FiLogIn, FiHome, FiBook, FiInfo, FiMail } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeItem, setActiveItem] = useState("Home");
+
+  const menuItems = [
+    { name: "Home", icon: <FiHome /> },
+    { name: "Menu", icon: <FiBook /> },
+    { name: "About", icon: <FiInfo /> },
+    { name: "Contact", icon: <FiMail /> }
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,44 +30,79 @@ const Navbar = () => {
     };
   }, []);
 
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !event.target.closest(".mobile-menu-container")) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
     <motion.nav
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className={`fixed top-5 left-1/2 transform -translate-x-1/2 backdrop-blur-md rounded-full px-8 py-3 z-50 w-[90%] md:w-auto ${
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className={`fixed top-5 left-1/2 transform -translate-x-1/2 backdrop-blur-md rounded-full z-50 w-[90%] md:w-4/5 lg:w-3/4 xl:w-2/3 ${
         scrolled
-          ? "bg-white/90 shadow-lg"
+          ? "bg-white/90 shadow-lg shadow-purple-100/50"
           : "bg-white/30"
-      }`}
+      } transition-all duration-300 ease-in-out`}
     >
-      <div className="flex justify-between items-center w-full space-x-6">
-        {/* Brand Name with sparkle effect */}
+      <div className="flex justify-between items-center w-full px-6 py-3 md:px-8">
+        {/* Brand Name with enhanced sparkle effect */}
         <motion.a
           href="/"
           className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 bg-clip-text text-transparent relative"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <span className="relative">
+          <span className="relative group">
             MunchMate
-            <span className="absolute -top-1 -right-3 text-yellow-400 text-xs">✨</span>
+            <motion.span
+              className="absolute -top-1 -right-3 text-yellow-400 text-xs"
+              initial={{ rotate: 0 }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+            >
+              ✨
+            </motion.span>
+            <motion.span
+              className="absolute -bottom-1 -left-2 text-yellow-400 text-xs opacity-0 group-hover:opacity-100"
+              initial={{ scale: 0 }}
+              whileHover={{ scale: 1, rotate: 360 }}
+              transition={{ duration: 0.5 }}
+            >
+              ✨
+            </motion.span>
           </span>
         </motion.a>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-8">
-          {["Home", "Menu", "About", "Contact"].map((item) => (
+          {menuItems.map((item) => (
             <motion.a
-              key={item}
-              href="#"
-              className="text-gray-700 hover:text-purple-600 relative font-medium"
+              key={item.name}
+              href={`#${item.name.toLowerCase()}`}
+              className={`flex items-center space-x-1 text-gray-700 hover:text-purple-600 relative font-medium ${
+                activeItem === item.name ? "text-purple-600 font-semibold" : ""
+              }`}
+              onClick={() => setActiveItem(item.name)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              {item}
+              <span className="hidden lg:inline">{item.icon}</span>
+              <span>{item.name}</span>
               <motion.span
-                className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-indigo-600"
+                className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full ${
+                  activeItem === item.name ? "w-full" : "w-0"
+                }`}
                 whileHover={{ width: "100%" }}
                 transition={{ duration: 0.3 }}
               />
@@ -70,9 +113,9 @@ const Navbar = () => {
         {/* Auth Buttons (Desktop) */}
         <div className="hidden md:flex space-x-3 items-center">
           <motion.a
-            href="#"
-            className="flex items-center space-x-1 text-gray-700 hover:text-purple-600 px-4 py-2 rounded-full border border-transparent hover:border-purple-200"
-            whileHover={{ scale: 1.05 }}
+            href="#signin"
+            className="flex items-center space-x-1 text-gray-700 hover:text-purple-600 px-4 py-2 rounded-full border border-transparent hover:border-purple-200 transition-all duration-300"
+            whileHover={{ scale: 1.05, backgroundColor: "rgba(233, 213, 255, 0.3)" }}
             whileTap={{ scale: 0.95 }}
           >
             <FiLogIn className="inline-block" />
@@ -80,8 +123,8 @@ const Navbar = () => {
           </motion.a>
 
           <motion.a
-            href="#"
-            className="flex items-center space-x-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg"
+            href="#signup"
+            className="flex items-center space-x-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300"
             whileHover={{
               scale: 1.05,
               boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
@@ -96,12 +139,35 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <motion.button
-          className="md:hidden text-2xl text-purple-600"
+          className="md:hidden text-2xl text-purple-600 relative z-50 mobile-menu-container"
           onClick={() => setIsOpen(!isOpen)}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          aria-label="Toggle menu"
         >
-          {isOpen ? <FiX /> : <FiMenu />}
+          <AnimatePresence mode="wait">
+            {isOpen ? (
+              <motion.div
+                key="close"
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <FiX />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="menu"
+                initial={{ rotate: 90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: -90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <FiMenu />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.button>
       </div>
 
@@ -113,30 +179,37 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden absolute top-16 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 backdrop-blur-md shadow-lg rounded-xl p-6 flex flex-col space-y-4 w-64 text-center"
+            className="md:hidden absolute top-16 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 backdrop-blur-md shadow-lg rounded-xl p-6 flex flex-col space-y-4 w-64 text-center mobile-menu-container"
           >
-            {["Home", "Menu", "About", "Contact"].map((item, index) => (
+            {menuItems.map((item, index) => (
               <motion.a
-                key={item}
-                href="#"
-                className="text-gray-700 hover:text-purple-600 py-2 font-medium"
+                key={item.name}
+                href={`#${item.name.toLowerCase()}`}
+                className={`flex items-center justify-center space-x-2 text-gray-700 hover:text-purple-600 py-2 font-medium ${
+                  activeItem === item.name ? "text-purple-600 font-semibold" : ""
+                }`}
+                onClick={() => {
+                  setActiveItem(item.name);
+                  setIsOpen(false);
+                }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05, x: 5 }}
+                whileHover={{ scale: 1.05, x: 5, backgroundColor: "rgba(233, 213, 255, 0.3)", borderRadius: "0.5rem" }}
               >
-                {item}
+                <span>{item.icon}</span>
+                <span>{item.name}</span>
               </motion.a>
             ))}
 
             <div className="pt-2 flex flex-col space-y-3">
               <motion.a
-                href="#"
+                href="#signin"
                 className="flex items-center justify-center space-x-2 text-purple-600 border border-purple-200 px-4 py-2 rounded-full hover:bg-purple-50"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(233, 213, 255, 0.3)" }}
                 whileTap={{ scale: 0.95 }}
               >
                 <FiLogIn className="inline-block" />
@@ -144,7 +217,7 @@ const Navbar = () => {
               </motion.a>
 
               <motion.a
-                href="#"
+                href="#signup"
                 className="flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
