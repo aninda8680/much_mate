@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { FiMenu, FiX, FiUser, FiLogIn, FiHome, FiBook, FiInfo, FiMail } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+
+gsap.registerPlugin(ScrollToPlugin);
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,6 +48,29 @@ const Navbar = () => {
     };
   }, [isOpen]);
 
+  // Handle smooth scrolling with GSAP
+  const handleNavigation = (sectionId, itemName) => {
+    const section = document.getElementById(sectionId);
+
+    if (section) {
+      // Close the mobile menu if it's open
+      setIsOpen(false);
+
+      // Set the active menu item
+      setActiveItem(itemName);
+
+      // Use GSAP to smoothly scroll to the section
+      gsap.to(window, {
+        duration: 1,
+        scrollTo: {
+          y: `#${sectionId}`,
+          offsetY: 80 // Offset to account for the navbar height
+        },
+        ease: "power3.inOut"
+      });
+    }
+  };
+
   return (
     <motion.nav
       initial={{ y: -100, opacity: 0 }}
@@ -51,7 +78,7 @@ const Navbar = () => {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className={`fixed top-5 left-1/2 transform -translate-x-1/2 backdrop-blur-md rounded-full z-50 w-[90%] md:w-4/5 lg:w-3/4 xl:w-2/3 ${
         scrolled
-          ? "bg-white/90 shadow-lg shadow-purple-100/50"
+          ? "bg-white/50 shadow-lg shadow-purple-100/50"
           : "bg-white/30"
       } transition-all duration-300 ease-in-out`}
     >
@@ -89,11 +116,13 @@ const Navbar = () => {
           {menuItems.map((item) => (
             <motion.a
               key={item.name}
-              href={`#${item.name.toLowerCase()}`}
-              className={`flex items-center space-x-1 text-gray-700 hover:text-purple-600 relative font-medium ${
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigation(item.name.toLowerCase(), item.name);
+              }}
+              className={`flex items-center space-x-1 text-gray-700 hover:text-purple-600 relative font-medium cursor-pointer ${
                 activeItem === item.name ? "text-purple-600 font-semibold" : ""
               }`}
-              onClick={() => setActiveItem(item.name)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -184,14 +213,13 @@ const Navbar = () => {
             {menuItems.map((item, index) => (
               <motion.a
                 key={item.name}
-                href={`#${item.name.toLowerCase()}`}
-                className={`flex items-center justify-center space-x-2 text-gray-700 hover:text-purple-600 py-2 font-medium ${
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigation(item.name.toLowerCase(), item.name);
+                }}
+                className={`flex items-center justify-center space-x-2 text-gray-700 hover:text-purple-600 py-2 font-medium cursor-pointer ${
                   activeItem === item.name ? "text-purple-600 font-semibold" : ""
                 }`}
-                onClick={() => {
-                  setActiveItem(item.name);
-                  setIsOpen(false);
-                }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
