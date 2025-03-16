@@ -5,6 +5,7 @@ import sandwich1 from "../assets/23.png";
 import sandwich2 from "../assets/24.png";
 import foodItem1 from "../assets/13.png"; // New food image
 import foodItem2 from "../assets/14.png"; // New food image
+import About from "./About";
 
 // Create a float-away animation that moves objects away from the center
 const createFloatAwayPath = (position) => {
@@ -32,6 +33,7 @@ const createFloatAwayPath = (position) => {
 };
 
 const Hero = () => {
+
   // Each food item will use its own float-away animation
   const floatAway = {
     animate: {
@@ -47,7 +49,8 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative flex flex-col items-center justify-center text-center min-h-screen px-6 md:px-20 lg:px-32 text-white overflow-hidden">
+    <>
+    <section id="home" className="relative flex flex-col items-center justify-center text-center min-h-screen px-6 md:px-20 lg:px-32 text-white overflow-hidden">
       {/* Beautiful gradient background */}
       <div className="absolute inset-0 -z-10 h-full w-full bg-white">
         <div className="absolute inset-0 [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]"></div>
@@ -73,8 +76,7 @@ const Hero = () => {
             duration: Math.random() * 8 + 10,
             repeat: Infinity,
             delay: Math.random() * 2,
-          }}
-        />
+          }} />
       ))}
 
       {/* Original food images with float-away animations */}
@@ -98,8 +100,7 @@ const Hero = () => {
         drag
         dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
         whileDrag={{ scale: 1.1, zIndex: 50 }}
-        whileHover={{ scale: 1.05 }}
-      />
+        whileHover={{ scale: 1.05 }} />
 
       <motion.img
         src={sandwich1}
@@ -122,8 +123,7 @@ const Hero = () => {
         drag
         dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
         whileDrag={{ scale: 1.1, zIndex: 50 }}
-        whileHover={{ scale: 1.05 }}
-      />
+        whileHover={{ scale: 1.05 }} />
 
       <motion.img
         src={sandwich2}
@@ -146,8 +146,7 @@ const Hero = () => {
         drag
         dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
         whileDrag={{ scale: 1.1, zIndex: 50 }}
-        whileHover={{ scale: 1.05 }}
-      />
+        whileHover={{ scale: 1.05 }} />
 
       {/* New food images with float-away animations */}
       <motion.img
@@ -171,8 +170,7 @@ const Hero = () => {
         drag
         dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
         whileDrag={{ scale: 1.1, zIndex: 50 }}
-        whileHover={{ scale: 1.05 }}
-      />
+        whileHover={{ scale: 1.05 }} />
 
       {/* Repositioned foodItem2 (14.png) */}
       <motion.img
@@ -196,18 +194,29 @@ const Hero = () => {
         drag
         dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
         whileDrag={{ scale: 1.1, zIndex: 50 }}
-        whileHover={{ scale: 1.05 }}
-      />
+        whileHover={{ scale: 1.05 }} />
 
-      {/* Text Content with beautiful styling */}
+      {/* Text Content with beautiful styling and Bold Tangerine font */}
       <motion.div
         className="relative z-10 max-w-2xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
+        {/* Font import for Tangerine */}
+        <style>
+          {`
+            @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Yesteryear&display=swap');
+          `}
+        </style>
+
         <motion.h1
-          className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-wide mb-6"
+          className="text-5xl md:text-7xl lg:text-8xl font-extrabold leading-tight tracking-wide mb-6"
+          style={{
+            fontFamily: "'Yesteryear', cursive",
+            fontWeight: 700,
+            textShadow: "1px 1px 3px rgba(0,0,0,0.1)"
+          }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -221,7 +230,7 @@ const Hero = () => {
         </motion.h1>
 
         <motion.p
-          className="text-lg md:text-2xl text-gray-600 max-w-xl mx-auto leading-relaxed mb-8"
+          className="text-lg md:text-2xl text-gray-600 max-w-xl mx-auto leading-relaxed mb-8 font-rubik"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
@@ -242,6 +251,8 @@ const Hero = () => {
         </motion.div>
       </motion.div>
     </section>
+    <About/>
+    </>
   );
 };
 
