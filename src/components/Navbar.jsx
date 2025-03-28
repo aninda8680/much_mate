@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiMenu, FiX, FiUser, FiLogIn, FiHome, FiBook, FiInfo, FiMail } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
+import { FiShoppingCart } from 'react-icons/fi';
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -17,6 +18,7 @@ const Navbar = ({ isAdmin }) => {
   const menuItems = [
     { name: "Home", icon: <FiHome />, path: "/" },
     { name: "Menu", icon: <FiBook />, path: "/menu" },
+    { name: "Cart", icon: <FiShoppingCart />, path: "/cart" }, 
     { name: "About", icon: <FiInfo />, path: "/" },
     { name: "Contact", icon: <FiMail />, path: "/" }
   ];

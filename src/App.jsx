@@ -5,6 +5,8 @@ import Hero from "./components/Hero";
 import CustomCursor from "./components/CustomCursor";
 import Menu from './components/Menu';
 import AdminMenu from './components/AdminMenu';
+import Cart from './components/Cart'; // Import Cart Component
+import { CartProvider } from "./context/CartContext"; // Import Cart Provider
 import './App.css';
 
 function App() {
@@ -18,27 +20,26 @@ function App() {
   }, [location]);
 
   return (
-    <div className="App">
-      <CustomCursor />
-      <Navbar isAdmin={isAdmin} />
-      
-      <Routes>
-        {/* Home route without Menu component */}
-        <Route path="/" element={
-          <>
-            <Hero />
-          </>
-        } />
+    <CartProvider> {/* Wrap the app with CartProvider */}
+      <div className="App">
+        <CustomCursor />
+        <Navbar isAdmin={isAdmin} />
         
-        {/* Dedicated Menu route */}
-        <Route path="/menu" element={<Menu />} />
-        
-        {/* Admin routes */}
-        <Route path="/admin/menu" element={<AdminMenu />} />
-        
-        {/* Add more routes as needed */}
-      </Routes>
-    </div>
+        <Routes>
+          {/* Home route */}
+          <Route path="/" element={<Hero />} />
+          
+          {/* Dedicated Menu route */}
+          <Route path="/menu" element={<Menu />} />
+          
+          {/* Cart Page Route */}
+          <Route path="/cart" element={<Cart />} />
+          
+          {/* Admin routes */}
+          <Route path="/admin/menu" element={<AdminMenu />} />
+        </Routes>
+      </div>
+    </CartProvider>
   );
 }
 

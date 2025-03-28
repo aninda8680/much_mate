@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { FiShoppingCart, FiFilter, FiSearch } from "react-icons/fi";
 import { db } from "../config"; // Firebase config file
 import { collection, getDocs } from "firebase/firestore";
+import { useCart } from "../context/CartContext"; // Import the cart context
 
 const Menu = () => {
+  const { addToCart } = useCart(); // Get addToCart function from cart context
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -62,6 +64,18 @@ const Menu = () => {
         ease: "easeOut"
       }
     }
+  };
+
+  // Handler for adding item to cart
+  const handleAddToCart = (item) => {
+    // Create a cart item object with essential properties
+    const cartItem = {
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image || "https://via.placeholder.com/400x300?text=Food+Image"
+    };
+    addToCart(cartItem);
   };
 
   return (
@@ -225,6 +239,7 @@ const Menu = () => {
                     {item.category || "Main Dish"}
                   </div>
                   <motion.button
+                    onClick={() => handleAddToCart(item)}
                     className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg"
                     whileHover={{
                       scale: 1.05,
