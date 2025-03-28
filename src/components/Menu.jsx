@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 import { FiShoppingCart, FiFilter, FiSearch } from "react-icons/fi";
 import { db } from "../config"; // Firebase config file
 import { collection, getDocs } from "firebase/firestore";
