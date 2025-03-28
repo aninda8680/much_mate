@@ -7,6 +7,8 @@ import Menu from './components/Menu';
 import AdminMenu from './components/AdminMenu';
 import Cart from './components/Cart'; // Import Cart Component
 import { CartProvider } from "./context/CartContext"; // Import Cart Provider
+import SignUp from "./components/SignUp";
+import SignIn from "./components/SignIn";
 import './App.css';
 
 function App() {
@@ -20,23 +22,27 @@ function App() {
   }, [location]);
 
   return (
-    <CartProvider> {/* Wrap the app with CartProvider */}
+    <CartProvider>
+      {" "}
+      {/* Wrap the app with CartProvider */}
       <div className="App">
         <CustomCursor />
         <Navbar isAdmin={isAdmin} />
-        
+
         <Routes>
           {/* Home route */}
           <Route path="/" element={<Hero />} />
-          
+
           {/* Dedicated Menu route */}
           <Route path="/menu" element={<Menu />} />
-          
+
           {/* Cart Page Route */}
           <Route path="/cart" element={<Cart />} />
-          
+
           {/* Admin routes */}
           <Route path="/admin/menu" element={<AdminMenu />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<SignIn />} />
         </Routes>
       </div>
     </CartProvider>

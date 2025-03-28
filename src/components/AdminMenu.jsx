@@ -34,11 +34,11 @@ const AdminMenu = () => {
 
   const handleImageUpload = async (file) => {
     if (!file) return;
-    
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
-    
+
     setUploading(true);
     try {
       const res = await axios.post(CLOUDINARY_URL, formData);
@@ -53,35 +53,35 @@ const AdminMenu = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!name || !price || !image) {
       alert("Please fill all fields and upload an image");
       return;
     }
-    
+
     try {
       if (editing) {
         // Update existing item
-        await updateDoc(doc(db, "menu", editing), { 
-          name, 
-          price: Number(price), 
-          image 
+        await updateDoc(doc(db, "menu", editing), {
+          name,
+          price: Number(price),
+          image
         });
         setEditing(null);
       } else {
         // Add new item
-        await addDoc(collection(db, "menu"), { 
-          name, 
-          price: Number(price), 
-          image 
+        await addDoc(collection(db, "menu"), {
+          name,
+          price: Number(price),
+          image
         });
       }
-      
+
       // Reset form
       setName("");
       setPrice("");
       setImage(null);
-      
+
       // Refresh menu items
       fetchMenuItems();
     } catch (error) {
@@ -100,7 +100,7 @@ const AdminMenu = () => {
 
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this item?")) return;
-    
+
     try {
       await deleteDoc(doc(db, "menu", id));
       fetchMenuItems();
@@ -118,70 +118,70 @@ const AdminMenu = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto my-20 p-6">
       <h2 className="text-2xl font-bold mb-6">Menu Management</h2>
-      
+
       {/* Form section */}
       <div className="bg-gray-50 p-6 rounded-lg shadow-md mb-8">
         <h3 className="text-xl font-semibold mb-4">
           {editing ? "Edit Menu Item" : "Add New Menu Item"}
         </h3>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
-            <input 
-              type="text" 
-              placeholder="Item Name" 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              className="w-full border rounded p-2" 
-              required 
+            <input
+              type="text"
+              placeholder="Item Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border rounded p-2"
+              required
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-            <input 
-              type="number" 
-              step="0.01" 
-              placeholder="Price" 
-              value={price} 
-              onChange={(e) => setPrice(e.target.value)} 
-              className="w-full border rounded p-2" 
-              required 
+            <input
+              type="number"
+              step="0.01"
+              placeholder="Price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full border rounded p-2"
+              required
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
-            <input 
-              type="file" 
-              onChange={(e) => handleImageUpload(e.target.files[0])} 
-              className="w-full border rounded p-2" 
+            <input
+              type="file"
+              onChange={(e) => handleImageUpload(e.target.files[0])}
+              className="w-full border rounded p-2"
             />
           </div>
-          
+
           {image && (
             <div className="mt-2">
               <p className="text-sm text-gray-600 mb-1">Preview:</p>
               <img src={image} alt="Preview" className="w-32 h-32 object-cover rounded" />
             </div>
           )}
-          
+
           {uploading && <p className="text-blue-500">Uploading image...</p>}
-          
+
           <div className="flex gap-3">
-            <button 
-              type="submit" 
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50" 
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
               disabled={uploading}
             >
               {editing ? "Update Item" : "Add Item"}
             </button>
-            
+
             {editing && (
-              <button 
+              <button
                 type="button"
                 onClick={cancelEdit}
                 className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
@@ -192,10 +192,10 @@ const AdminMenu = () => {
           </div>
         </form>
       </div>
-      
+
       {/* Menu items list */}
       <h3 className="text-xl font-semibold mb-4">Current Menu Items</h3>
-      
+
       {loading ? (
         <p>Loading menu items...</p>
       ) : menuItems.length === 0 ? (
@@ -205,24 +205,24 @@ const AdminMenu = () => {
           {menuItems.map((item) => (
             <div key={item.id} className="border rounded-lg overflow-hidden shadow-md">
               <div className="h-40 overflow-hidden">
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
-                  className="w-full h-full object-cover" 
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="p-4">
                 <h3 className="text-lg font-semibold">{item.name}</h3>
                 <p className="text-gray-600">${item.price}</p>
                 <div className="flex gap-2 mt-3">
-                  <button 
-                    onClick={() => handleEdit(item)} 
+                  <button
+                    onClick={() => handleEdit(item)}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                   >
                     Edit
                   </button>
-                  <button 
-                    onClick={() => handleDelete(item.id)} 
+                  <button
+                    onClick={() => handleDelete(item.id)}
                     className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                   >
                     Delete

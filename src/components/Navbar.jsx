@@ -18,7 +18,7 @@ const Navbar = ({ isAdmin }) => {
   const menuItems = [
     { name: "Home", icon: <FiHome />, path: "/" },
     { name: "Menu", icon: <FiBook />, path: "/menu" },
-    { name: "Cart", icon: <FiShoppingCart />, path: "/cart" }, 
+    { name: "Cart", icon: <FiShoppingCart />, path: "/cart" },
     { name: "About", icon: <FiInfo />, path: "/" },
     { name: "Contact", icon: <FiMail />, path: "/" }
   ];
@@ -66,7 +66,7 @@ const Navbar = ({ isAdmin }) => {
   const handleNavigation = (itemName, itemPath) => {
     // Close the mobile menu if it's open
     setIsOpen(false);
-    
+
     // Set the active menu item
     setActiveItem(itemName);
 
@@ -77,7 +77,7 @@ const Navbar = ({ isAdmin }) => {
       // If we're on the home page, scroll to section
       const sectionId = itemName.toLowerCase();
       const section = document.getElementById(sectionId);
-      
+
       if (section) {
         // Use GSAP to smoothly scroll to the section
         gsap.to(window, {
@@ -101,9 +101,7 @@ const Navbar = ({ isAdmin }) => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className={`fixed top-5 left-1/2 transform -translate-x-1/2 backdrop-blur-md rounded-full z-50 w-[90%] md:w-4/5 lg:w-3/4 xl:w-2/3 ${
-        scrolled
-          ? "bg-white/50 shadow-lg shadow-purple-100/50"
-          : "bg-white/30"
+        scrolled ? "bg-white/50 shadow-lg shadow-purple-100/50" : "bg-white/30"
       } transition-all duration-300 ease-in-out`}
     >
       <div className="flex justify-between items-center w-full px-6 py-3 md:px-8">
@@ -180,9 +178,12 @@ const Navbar = ({ isAdmin }) => {
           ) : (
             <>
               <motion.a
-                href="#signin"
+                onClick={() => navigate("/signin")}
                 className="flex items-center space-x-1 text-gray-700 hover:text-purple-600 px-4 py-2 rounded-full border border-transparent hover:border-purple-200 transition-all duration-300"
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(233, 213, 255, 0.3)" }}
+                whileHover={{
+                  scale: 1.05,
+                  backgroundColor: "rgba(233, 213, 255, 0.3)",
+                }}
                 whileTap={{ scale: 0.95 }}
               >
                 <FiLogIn className="inline-block" />
@@ -190,12 +191,13 @@ const Navbar = ({ isAdmin }) => {
               </motion.a>
 
               <motion.a
-                href="#signup"
+                onClick={() => navigate("/signup")}
                 className="flex items-center space-x-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300"
                 whileHover={{
                   scale: 1.05,
                   boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
-                  background: "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)"
+                  background:
+                    "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)",
                 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -258,12 +260,19 @@ const Navbar = ({ isAdmin }) => {
                   handleNavigation(item.name, item.path);
                 }}
                 className={`flex items-center justify-center space-x-2 text-gray-700 hover:text-purple-600 py-2 font-medium cursor-pointer ${
-                  activeItem === item.name ? "text-purple-600 font-semibold" : ""
+                  activeItem === item.name
+                    ? "text-purple-600 font-semibold"
+                    : ""
                 }`}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05, x: 5, backgroundColor: "rgba(233, 213, 255, 0.3)", borderRadius: "0.5rem" }}
+                whileHover={{
+                  scale: 1.05,
+                  x: 5,
+                  backgroundColor: "rgba(233, 213, 255, 0.3)",
+                  borderRadius: "0.5rem",
+                }}
               >
                 <span>{item.icon}</span>
                 <span>{item.name}</span>
@@ -291,7 +300,10 @@ const Navbar = ({ isAdmin }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    whileHover={{ scale: 1.05, backgroundColor: "rgba(233, 213, 255, 0.3)" }}
+                    whileHover={{
+                      scale: 1.05,
+                      backgroundColor: "rgba(233, 213, 255, 0.3)",
+                    }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <FiLogIn className="inline-block" />
@@ -307,7 +319,8 @@ const Navbar = ({ isAdmin }) => {
                     whileHover={{
                       scale: 1.05,
                       boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
-                      background: "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)"
+                      background:
+                        "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)",
                     }}
                     whileTap={{ scale: 0.95 }}
                   >
