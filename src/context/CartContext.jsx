@@ -24,9 +24,29 @@ export const CartProvider = ({ children }) => {
         setCart([]);
     };
 
+    // Function to decrease quantity of an item
+    const decreaseQuantity = (id) => {
+        setCart((prevCart) => {
+            const itemIndex = prevCart.findIndex(item => item.id === id);
+            if (itemIndex === -1) return prevCart;
+            
+            const newCart = [...prevCart];
+            newCart.splice(itemIndex, 1);
+            return newCart;
+        });
+    };
+
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+        <CartContext.Provider value={{ 
+            cart, 
+            addToCart, 
+            removeFromCart, 
+            clearCart,
+            decreaseQuantity 
+        }}>
             {children}
         </CartContext.Provider>
     );
 };
+
+export default CartProvider;

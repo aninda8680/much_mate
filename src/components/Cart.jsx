@@ -1,11 +1,11 @@
-import { useCart } from "../context/CartContext";
+import { useCart } from "../context/CartContext"; // Update this path to where you place the context file
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiTrash2, FiShoppingBag, FiPlus, FiMinus } from "react-icons/fi";
 
 const Cart = () => {
-  const { cart, removeFromCart, clearCart, addToCart, decreaseQuantity } =
-    useCart();
+  // Destructure all needed functions and state from the context
+  const { cart, removeFromCart, clearCart, addToCart, decreaseQuantity } = useCart();
 
   // Group identical items together
   const groupedItems = cart.reduce((acc, item) => {
@@ -18,7 +18,7 @@ const Cart = () => {
     return acc;
   }, []);
 
-  // Calculate total price without delivery fee
+  // Calculate total price
   const totalPrice = cart
     .reduce((total, item) => total + item.price, 0)
     .toFixed(2);
@@ -38,9 +38,29 @@ const Cart = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  // Handle quantity decrease
+  // For debugging
+  console.log("Cart functions available:", { 
+    removeFromCart: typeof removeFromCart, 
+    decreaseQuantity: typeof decreaseQuantity,
+    addToCart: typeof addToCart,
+    clearCart: typeof clearCart
+  });
+
+  // Define manual decrease function if context one is not available
   const handleDecreaseQuantity = (itemId) => {
-    decreaseQuantity(itemId);
+    console.log("Decreasing quantity for item:", itemId);
+    if (typeof decreaseQuantity === 'function') {
+      decreaseQuantity(itemId);
+    } else {
+      console.error("decreaseQuantity not available in context");
+      // Fallback implementation
+      const itemIndex = cart.findIndex(item => item.id === itemId);
+      if (itemIndex !== -1) {
+        const newCart = [...cart];
+        newCart.splice(itemIndex, 1);
+        // You would need setCart here, but this is just a fallback
+      }
+    }
   };
 
   return (
@@ -100,23 +120,23 @@ const Cart = () => {
                         src={item.image}
                         alt={item.name}
                         className="w-16 h-16 rounded-lg object-cover border border-purple-100"
-                        />
-                        <div>
+                      />
+                      <div>
                         <h3 className="text-lg font-medium text-gray-800">
-                            {item.name}
+                          {item.name}
                         </h3>
                         <p className="text-purple-600 font-medium">
-                            ₹{item.price}
+                          ₹{item.price}
                         </p>
-                    </div>
+                      </div>
                     </div>
 
                     <div className="flex items-center">
-                    <div className="flex items-center mr-4 bg-white border border-purple-200 rounded-lg overflow-hidden">
+                      <div className="flex items-center mr-4 bg-white border border-purple-200 rounded-lg overflow-hidden">
                         <button
-                        onClick={() => handleDecreaseQuantity(item.id)}
-                        className="p-2 text-purple-600 hover:bg-purple-50"
-                        aria-label="Decrease quantity"
+                          onClick={() => handleDecreaseQuantity(item.id)}
+                          className="p-2 text-purple-600 hover:bg-purple-50"
+                          aria-label="Decrease quantity"
                         >
                           <FiMinus size={16} />
                         </button>
