@@ -126,7 +126,7 @@ const SignIn = () => {
               <button
                 type="button"
                 onClick={() => {
-                  window.location.href = "/signup"; // Simple redirect
+                  navigate("/signup");
                 }}
                 className="text-purple-600 hover:text-purple-800 font-semibold transition duration-300"
               >
