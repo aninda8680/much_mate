@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Utensils, AlertTriangle, CheckCircle } from "lucide-react";
 import { auth } from "../config"; // Adjust path as needed
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const SignUp = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [firebaseError, setFirebaseError] = useState(null);
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
@@ -53,7 +55,7 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFirebaseError(null);
-    
+
     if (validateForm()) {
       setIsLoading(true);
       try {
@@ -63,7 +65,7 @@ const SignUp = () => {
           formData.email,
           formData.password
         );
-        
+
         // User creation successful
         setIsSubmitted(true);
         console.log("Tasty signup:", formData.email);
@@ -71,7 +73,7 @@ const SignUp = () => {
         // Handle Firebase auth errors
         console.error("Firebase signup error:", error.code, error.message);
         let errorMessage = "Failed to create account. Please try again.";
-        
+
         if (error.code === "auth/email-already-in-use") {
           errorMessage = "This email is already registered. Try signing in!";
         } else if (error.code === "auth/weak-password") {
@@ -81,12 +83,17 @@ const SignUp = () => {
         } else if (error.code === "auth/network-request-failed") {
           errorMessage = "Network error. Check your connection and try again.";
         }
-        
+
         setFirebaseError(errorMessage);
       } finally {
         setIsLoading(false);
       }
     }
+  };
+
+  // Navigate to UserDetails when "Continue" button is clicked
+  const handleContinue = () => {
+    navigate("/userdetails");
   };
 
   return (
@@ -113,10 +120,10 @@ const SignUp = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.location.href = "/signin"}
+              onClick={handleContinue}
               className="mt-6 px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition duration-300"
             >
-              Continue to Sign In
+              Continue to Complete Profile
             </motion.button>
           </motion.div>
         ) : (
@@ -134,11 +141,14 @@ const SignUp = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-start"
                 >
-                  <AlertTriangle size={20} className="mr-2 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle
+                    size={20}
+                    className="mr-2 flex-shrink-0 mt-0.5"
+                  />
                   <span>{firebaseError}</span>
                 </motion.div>
               )}
-              
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -237,9 +247,25 @@ const SignUp = () => {
               >
                 {isLoading ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Creating Account...
                   </>
@@ -255,7 +281,7 @@ const SignUp = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      window.location.href = "/signin"; // Simple redirect
+                      navigate("/signin"); // Using navigate instead of window.location
                     }}
                     className="text-purple-600 hover:text-purple-800 font-semibold transition duration-300"
                   >
