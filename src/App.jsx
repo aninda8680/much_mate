@@ -9,6 +9,7 @@ import Cart from './components/Cart'; // Import Cart Component
 import { CartProvider } from "./context/CartContext"; // Import Cart Provider
 import SignUp from "./components/SignUp";
 import SignIn from "./components/SignIn";
+import UserDetails from "./components/UserDetails"; 
 import './App.css';
 
 function App() {
@@ -38,11 +39,14 @@ function App() {
 
           {/* Cart Page Route */}
           <Route path="/cart" element={<Cart />} />
+          
+          <Route path="/userdetails" element={<UserDetails />} />
 
-          {/* Admin routes */}
           <Route path="/admin/menu" element={<AdminMenu />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+
+          {/* Fallback route */}
         </Routes>
       </div>
     </CartProvider>
