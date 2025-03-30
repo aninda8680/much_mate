@@ -152,10 +152,10 @@ const UserDetails = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.location.href = "/dashboard"}
+              onClick={() => window.location.href = "/signin"}
               className="mt-6 px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition duration-300"
             >
-              Go to Dashboard
+              Sign In Now
             </motion.button>
           </motion.div>
         ) : (

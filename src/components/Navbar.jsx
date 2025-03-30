@@ -16,10 +16,10 @@ const Navbar = ({ isAdmin }) => {
   const location = useLocation();
 
   const menuItems = [
-    { name: "Home", icon: <FiHome />, path: "/" },
+    { name: "Home", icon: <FiHome />, path: "/home" },
     { name: "Menu", icon: <FiBook />, path: "/menu" },
     { name: "Cart", icon: <FiShoppingCart />, path: "/cart" },
-    { name: "About", icon: <FiInfo />, path: "/" },
+    { name: "About", icon: <FiInfo />, path: "/about" },
     { name: "Contact", icon: <FiMail />, path: "/" }
   ];
 
