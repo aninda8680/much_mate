@@ -30,7 +30,7 @@ const Navbar = ({ isAdmin }) => {
     if (currentItem) {
       setActiveItem(currentItem.name);
     }
-  }, [location.pathname]);
+  }, [location.pathname, menuItems]);
 
   useEffect(() => {
     const handleScroll = () => {
