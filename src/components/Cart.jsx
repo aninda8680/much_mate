@@ -1,7 +1,7 @@
 import { useCart } from "../context/CartContext"; // Update this path to where you place the context file
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FiTrash2, FiShoppingBag, FiPlus, FiMinus } from "react-icons/fi";
+import { FiTrash2, FiShoppingBag, FiPlus, FiMinus, FiFileText } from "react-icons/fi";
 
 const Cart = () => {
   // Destructure all needed functions and state from the context
@@ -193,12 +193,24 @@ const Cart = () => {
               >
                 Clear Cart
               </button>
+
+              {/* Option 1: Direct invoice button */}
+              <Link
+                to="/invoice"
+                className="px-6 py-3 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-all duration-300 text-center flex items-center justify-center"
+              >
+                <FiFileText className="mr-2" />
+                View Invoice
+              </Link>
+
+              {/* Option 2: Keep checkout but with modified style (uncomment if needed) 
               <Link
                 to="/checkout"
                 className="px-6 py-3 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-all duration-300 text-center"
               >
                 Proceed to Checkout
               </Link>
+              */}
             </div>
           </>
         )}

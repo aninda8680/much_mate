@@ -10,6 +10,7 @@ import { CartProvider } from "./context/CartContext"; // Import Cart Provider
 import SignUp from "./components/SignUp";
 import SignIn from "./components/SignIn";
 import UserDetails from "./components/UserDetails"; 
+import Invoice from './components/Invoice';
 import './App.css';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
           <Route path="/admin/menu" element={<AdminMenu />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/invoice" element={<Invoice />} />
 
           {/* Fallback route */}
         </Routes>
