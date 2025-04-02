@@ -25,7 +25,7 @@ function App() {
 
   // Check if current path is the landing page, sign in, or sign up page
   const isLandingPage = location.pathname === "/";
-  const isAuthPage = ["/signin", "/signup"].includes(location.pathname);
+  const isAuthPage = ["/signin", "/signup","/UserDetails"].includes(location.pathname);
 
   return (
     <CartProvider>

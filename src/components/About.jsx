@@ -172,7 +172,7 @@ const About = () => {
                 <div className="w-32 h-32 rounded-full mx-auto bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-3xl">
                   {member.name.charAt(0)}
                 </div>
-                <h3 className="text-xl font-semibold mt-4">{member.name}</h3>
+                <h3 className="text-xl text-black font-semibold mt-4">{member.name}</h3>
                 <p className="text-pink-400 font-medium">{member.role}</p>
                 <p className="text-gray-400 text-sm mt-2">{member.specialty}</p>
                 <div className="mt-4 flex justify-center space-x-3">
