@@ -14,6 +14,7 @@ const AdminMenu = () => {
   const [uploading, setUploading] = useState(false);
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAvailable, setIsAvailable] = useState(false); // Default: not available
 
   useEffect(() => {
     fetchMenuItems();
@@ -65,7 +66,8 @@ const AdminMenu = () => {
         await updateDoc(doc(db, "menu", editing), {
           name,
           price: Number(price),
-          image
+          image,
+          isAvailable
         });
         setEditing(null);
       } else {
@@ -73,7 +75,8 @@ const AdminMenu = () => {
         await addDoc(collection(db, "menu"), {
           name,
           price: Number(price),
-          image
+          image,
+          isAvailable: false // Default to not available
         });
       }
 
@@ -81,6 +84,7 @@ const AdminMenu = () => {
       setName("");
       setPrice("");
       setImage(null);
+      setIsAvailable(false);
 
       // Refresh menu items
       fetchMenuItems();
@@ -95,6 +99,7 @@ const AdminMenu = () => {
     setName(item.name);
     setPrice(item.price);
     setImage(item.image);
+    setIsAvailable(item.isAvailable !== undefined ? item.isAvailable : false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -110,11 +115,24 @@ const AdminMenu = () => {
     }
   };
 
+  const toggleAvailability = async (id, currentStatus) => {
+    try {
+      await updateDoc(doc(db, "menu", id), {
+        isAvailable: !currentStatus
+      });
+      fetchMenuItems();
+    } catch (error) {
+      console.error("Error updating availability:", error);
+      alert("Failed to update availability. Please try again.");
+    }
+  };
+
   const cancelEdit = () => {
     setEditing(null);
     setName("");
     setPrice("");
     setImage(null);
+    setIsAvailable(false);
   };
 
   return (
@@ -169,6 +187,18 @@ const AdminMenu = () => {
             </div>
           )}
 
+          <div>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isAvailable}
+                onChange={() => setIsAvailable(!isAvailable)}
+                className="w-4 h-4"
+              />
+              <span className="text-sm font-medium text-gray-700">Available for Order</span>
+            </label>
+          </div>
+
           {uploading && <p className="text-blue-500">Uploading image...</p>}
 
           <div className="flex gap-3">
@@ -212,7 +242,17 @@ const AdminMenu = () => {
                 />
               </div>
               <div className="p-4">
-                <h3 className="text-lg font-semibold">{item.name}</h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{item.name}</h3>
+                  <button
+                    onClick={() => toggleAvailability(item.id, item.isAvailable)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium flex items-center ${
+                      item.isAvailable ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                    }`}
+                  >
+                    {item.isAvailable ? "Available" : "Not Available"}
+                  </button>
+                </div>
                 <p className="text-gray-600">${item.price}</p>
                 <div className="flex gap-2 mt-3">
                   <button
