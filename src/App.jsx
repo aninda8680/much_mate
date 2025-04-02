@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
-import CustomCursor from "./components/CustomCursor";
 import Menu from "./components/Menu";
 import AdminMenu from "./components/AdminMenu";
 import Cart from "./components/Cart";
@@ -26,12 +25,11 @@ function App() {
 
   // Check if current path is the landing page, sign in, or sign up page
   const isLandingPage = location.pathname === "/";
-  const isAuthPage = ["/signin", "/signup","/UserDetails"].includes(location.pathname);
+  const isAuthPage = ["/signin", "/signup","/userdetails"].includes(location.pathname);
 
   return (
     <CartProvider>
       <div className="App">
-        <CustomCursor />
         {/* Only render Navbar when NOT on landing or auth pages */}
         {!isLandingPage && !isAuthPage && <Navbar isAdmin={isAdmin} />}
         <Routes>
