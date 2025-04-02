@@ -112,7 +112,7 @@ const Navbar = ({ isAdmin }) => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <span className="relative group">
+          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 bg-clip-text text-transparent relative cursor-pointer">
             MunchMate
             <motion.span
               className="absolute -top-1 -right-3 text-yellow-400 text-xs"
