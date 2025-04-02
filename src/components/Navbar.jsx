@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiMenu, FiX, FiUser, FiLogIn, FiHome, FiBook, FiInfo, FiMail } from "react-icons/fi";
+import { FiMenu, FiX, FiUser, FiHome, FiBook, FiInfo, FiMail, FiChevronDown } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { FiShoppingCart } from 'react-icons/fi';
@@ -8,20 +8,31 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 gsap.registerPlugin(ScrollToPlugin);
 
-const Navbar = ({ isAdmin }) => {
+const Navbar = ({ isAdmin, currentUser }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState("Home");
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const menuItems = [
+  const menuItems = React.useMemo(() => [
     { name: "Home", icon: <FiHome />, path: "/home" },
     { name: "Menu", icon: <FiBook />, path: "/menu" },
     { name: "Cart", icon: <FiShoppingCart />, path: "/cart" },
-    { name: "About", icon: <FiInfo />, path: "/about" },
-    { name: "Contact", icon: <FiMail />, path: "/" }
-  ];
+    { name: "About", icon: <FiInfo />, path: "/about" }
+  ], []);
+
+  // Mock user data (replace with actual Firebase data)
+  const userData = currentUser || {
+    name: "Shreyas Saha",
+    email: "shreyassaha00@gmail.com",
+    contactNumber: "7439361373",
+    department: "Computer Science",
+    rollNumber: "UG/02/BTCSE/2023/096",
+    section: "B",
+    semester: "4th Semester"
+  };
 
   useEffect(() => {
     // Set active item based on current path
@@ -48,11 +59,14 @@ const Navbar = ({ isAdmin }) => {
     };
   }, []);
 
-  // Close mobile menu when clicking outside
+  // Close mobile menu and profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isOpen && !event.target.closest(".mobile-menu-container")) {
         setIsOpen(false);
+      }
+      if (showProfileDropdown && !event.target.closest(".profile-dropdown-container")) {
+        setShowProfileDropdown(false);
       }
     };
 
@@ -60,7 +74,7 @@ const Navbar = ({ isAdmin }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, showProfileDropdown]);
 
   // Handle navigation - either scroll or redirect
   const handleNavigation = (itemName, itemPath) => {
@@ -161,7 +175,7 @@ const Navbar = ({ isAdmin }) => {
           ))}
         </div>
 
-        {/* Auth Buttons (Desktop) */}
+        {/* User Profile Button (Desktop) */}
         <div className="hidden md:flex space-x-3 items-center">
           {isAdmin ? (
             <motion.a
@@ -176,23 +190,10 @@ const Navbar = ({ isAdmin }) => {
               <span>Admin Panel</span>
             </motion.a>
           ) : (
-            <>
-              <motion.a
-                onClick={() => navigate("/signin")}
-                className="flex items-center space-x-1 text-gray-700 hover:text-purple-600 px-4 py-2 rounded-full border border-transparent hover:border-purple-200 transition-all duration-300"
-                whileHover={{
-                  scale: 1.05,
-                  backgroundColor: "rgba(233, 213, 255, 0.3)",
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FiLogIn className="inline-block" />
-                <span>Sign In</span>
-              </motion.a>
-
-              <motion.a
-                onClick={() => navigate("/signup")}
-                className="flex items-center space-x-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300"
+            <div className="relative profile-dropdown-container">
+              <motion.button
+                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300"
                 whileHover={{
                   scale: 1.05,
                   boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
@@ -202,9 +203,56 @@ const Navbar = ({ isAdmin }) => {
                 whileTap={{ scale: 0.95 }}
               >
                 <FiUser className="inline-block" />
-                <span>Sign Up</span>
-              </motion.a>
-            </>
+                <span>{userData.name.split(" ")[0]}</span>
+                <FiChevronDown className={`transform transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
+              </motion.button>
+              
+              <AnimatePresence>
+                {showProfileDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-64 bg-white bg-opacity-90 backdrop-blur-md shadow-lg rounded-xl p-4 z-50"
+                  >
+                    <div className="flex flex-col space-y-2">
+                      <div className="border-b border-gray-200 pb-2 mb-2">
+                        <h3 className="font-bold text-gray-800">{userData.name}</h3>
+                        <p className="text-sm text-gray-600">{userData.email}</p>
+                        <p className="text-sm text-gray-600">{userData.contactNumber}</p>
+                      </div>
+                      <div className="text-sm">
+                        <p className="flex justify-between"><span className="font-medium">Department:</span> <span>{userData.department}</span></p>
+                        <p className="flex justify-between"><span className="font-medium">Roll Number:</span> <span>{userData.rollNumber}</span></p>
+                        <p className="flex justify-between"><span className="font-medium">Section:</span> <span>{userData.section}</span></p>
+                        <p className="flex justify-between"><span className="font-medium">Semester:</span> <span>{userData.semester}</span></p>
+                      </div>
+                      <div className="pt-2 border-t border-gray-200">
+                        <motion.button
+                          onClick={() => navigate("/UserDetails")}
+                          className="w-full text-center text-purple-600 hover:text-purple-800 text-sm py-1"
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          Edit Profile
+                        </motion.button>
+                        <motion.button
+                          onClick={() => {
+                            // Handle sign out logic here
+                            console.log("Signing out");
+                            navigate("/");
+                          }}
+                          className="w-full text-center text-red-500 hover:text-red-700 text-sm py-1"
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          Sign Out
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           )}
         </div>
 
@@ -252,6 +300,13 @@ const Navbar = ({ isAdmin }) => {
             transition={{ duration: 0.2 }}
             className="md:hidden absolute top-16 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 backdrop-blur-md shadow-lg rounded-xl p-6 flex flex-col space-y-4 w-64 text-center mobile-menu-container"
           >
+            {/* User Profile Info (Mobile) */}
+            <div className="border-b border-gray-200 pb-3 mb-1">
+              <h3 className="font-bold text-gray-800">{userData.name}</h3>
+              <p className="text-xs text-gray-600">{userData.email}</p>
+              <p className="text-xs text-gray-600">{userData.rollNumber}</p>
+            </div>
+            
             {menuItems.map((item, index) => (
               <motion.a
                 key={item.name}
@@ -295,7 +350,7 @@ const Navbar = ({ isAdmin }) => {
               ) : (
                 <>
                   <motion.a
-                    href="#signin"
+                    onClick={() => navigate("/profile")}
                     className="flex items-center justify-center space-x-2 text-purple-600 border border-purple-200 px-4 py-2 rounded-full hover:bg-purple-50"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -306,27 +361,29 @@ const Navbar = ({ isAdmin }) => {
                     }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <FiLogIn className="inline-block" />
-                    <span>Sign In</span>
+                    <FiUser className="inline-block" />
+                    <span>View Profile</span>
                   </motion.a>
 
-                  <motion.a
-                    href="#signup"
-                    className="flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg"
+                  <motion.button
+                    onClick={() => {
+                      // Handle sign out logic here
+                      console.log("Signing out");
+                      navigate("/");
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full hover:shadow-lg"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
                     whileHover={{
                       scale: 1.05,
-                      boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
-                      background:
-                        "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)",
+                      boxShadow: "0 10px 15px rgba(239, 68, 68, 0.3)",
                     }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <FiUser className="inline-block" />
-                    <span>Sign Up</span>
-                  </motion.a>
+                    <span>Sign Out</span>
+                  </motion.button>
                 </>
               )}
             </div>

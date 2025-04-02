@@ -26,6 +26,8 @@ const SignUp = () => {
       newErrors.email = "Oops! We need your email to serve you";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Hmm, that doesn't look like a real email";
+    } else if (!formData.email.endsWith("adamasuniversity.ac.in")) {
+      newErrors.email = "Please use your Adamas University email (@adamasuniversity.ac.in)";
     }
 
     // Password validation
@@ -163,7 +165,7 @@ const SignUp = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="foodie@munchmate.com"
+                  placeholder="Your University Email"
                   className={`w-full p-3 rounded-lg border ${
                     errors.email
                       ? "border-red-500 focus:ring-red-500"
