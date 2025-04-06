@@ -1,51 +1,15 @@
-import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import React from "react";
 
 const OrderNowButton = () => {
-  const btnRef = useRef(null);
-  const spanRef = useRef(null);
-
-  useEffect(() => {
-    if (!btnRef.current || !spanRef.current) return;
-
-    const button = btnRef.current;
-    const span = spanRef.current;
-
-    const handleMouseMove = (e) => {
-      const { width, left } = button.getBoundingClientRect();
-      const offset = e.clientX - left;
-      const leftPercentage = `${(offset / width) * 100}%`;
-
-      span.animate({ left: leftPercentage }, { duration: 300, fill: "forwards", easing: "ease-out" });
-    };
-
-    const handleMouseLeave = () => {
-      span.animate({ left: "50%" }, { duration: 200, fill: "forwards", easing: "ease-out" });
-    };
-
-    button.addEventListener("mousemove", handleMouseMove);
-    button.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      button.removeEventListener("mousemove", handleMouseMove);
-      button.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, []);
-
   return (
-    <motion.button
-      whileTap={{ scale: 0.95 }}
-      ref={btnRef}
-      className="relative w-full max-w-xs overflow-hidden rounded-lg bg-purple-500 px-6 py-3 text-lg font-semibold text-white shadow-md transition-all hover:bg-purple-600 cursor-pointer" // Added cursor-pointer here
-    >
-      <span className="pointer-events-none relative z-10 text-white">
-        Order Now
-      </span>
-      <span
-        ref={spanRef}
-        className="pointer-events-none absolute left-[50%] top-[50%] h-32 w-32 -translate-x-[50%] -translate-y-[50%] rounded-full bg-white opacity-20 transition-all"
-      />
-    </motion.button>
+    <button className="relative border hover:border-orange-600 duration-500 group cursor-pointer text-orange-50 overflow-hidden h-14 w-56 rounded-md bg-orange-800 p-2 flex justify-center items-center font-extrabold">
+      <div className="absolute z-10 w-48 h-48 rounded-full group-hover:scale-150 transition-all duration-500 ease-in-out bg-orange-900 delay-150 group-hover:delay-75" />
+      <div className="absolute z-10 w-40 h-40 rounded-full group-hover:scale-150 transition-all duration-500 ease-in-out bg-orange-800 delay-150 group-hover:delay-100" />
+      <div className="absolute z-10 w-32 h-32 rounded-full group-hover:scale-150 transition-all duration-500 ease-in-out bg-orange-700 delay-150 group-hover:delay-150" />
+      <div className="absolute z-10 w-24 h-24 rounded-full group-hover:scale-150 transition-all duration-500 ease-in-out bg-orange-600 delay-150 group-hover:delay-200" />
+      <div className="absolute z-10 w-16 h-16 rounded-full group-hover:scale-150 transition-all duration-500 ease-in-out bg-orange-500 delay-150 group-hover:delay-300" />
+      <p className="z-10">Order Now</p>
+    </button>
   );
 };
 
