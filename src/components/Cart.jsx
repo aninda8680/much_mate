@@ -1,11 +1,19 @@
 import { useCart } from "../context/CartContext"; // Update this path to where you place the context file
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FiTrash2, FiShoppingBag, FiPlus, FiMinus, FiFileText } from "react-icons/fi";
+import {
+  FiTrash2,
+  FiShoppingBag,
+  FiPlus,
+  FiMinus,
+  FiFileText,
+} from "react-icons/fi";
+import Squares from "./Squares"; // Make sure this path is correct
 
 const Cart = () => {
   // Destructure all needed functions and state from the context
-  const { cart, removeFromCart, clearCart, addToCart, decreaseQuantity } = useCart();
+  const { cart, removeFromCart, clearCart, addToCart, decreaseQuantity } =
+    useCart();
 
   // Group identical items together
   const groupedItems = cart.reduce((acc, item) => {
@@ -38,23 +46,15 @@ const Cart = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  // For debugging
-  console.log("Cart functions available:", { 
-    removeFromCart: typeof removeFromCart, 
-    decreaseQuantity: typeof decreaseQuantity,
-    addToCart: typeof addToCart,
-    clearCart: typeof clearCart
-  });
-
   // Define manual decrease function if context one is not available
   const handleDecreaseQuantity = (itemId) => {
     console.log("Decreasing quantity for item:", itemId);
-    if (typeof decreaseQuantity === 'function') {
+    if (typeof decreaseQuantity === "function") {
       decreaseQuantity(itemId);
     } else {
       console.error("decreaseQuantity not available in context");
       // Fallback implementation
-      const itemIndex = cart.findIndex(item => item.id === itemId);
+      const itemIndex = cart.findIndex((item) => item.id === itemId);
       if (itemIndex !== -1) {
         const newCart = [...cart];
         newCart.splice(itemIndex, 1);
@@ -64,158 +64,164 @@ const Cart = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen p-4 md:p-8 bg-white"
-    >
-      <div className="max-w-3xl mx-auto py-30">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-purple-800">
-            Your Cart
-          </h2>
-          <Link
-            to="/menu"
-            className="text-purple-700 hover:text-purple-900 font-medium flex items-center"
-          >
-            <span className="mr-2">Continue Shopping</span>
-          </Link>
-        </div>
+    <div className="relative min-h-screen w-full bg-black overflow-hidden">
+      {/* Squares background */}
+      <div className="absolute inset-0 z-0">
+        <Squares
+          direction="none"
+          speed={0}
+          borderColor="#333"
+          squareSize={50}
+          hoverFillColor="#444"
+        />
+      </div>
 
-        {cart.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center border border-purple-100">
-            <div className="flex justify-center mb-4">
-              <FiShoppingBag size={60} className="text-purple-200" />
-            </div>
-            <p className="text-gray-600 text-lg mb-6">Your cart is empty</p>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 min-h-screen p-4 md:p-8 bg-transparent"
+      >
+        <div className="max-w-3xl mx-auto py-30">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-100">
+              Your Cart
+            </h2>
             <Link
               to="/menu"
-              className="px-6 py-3 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-all duration-300"
+              className="text-gray-300 hover:text-gray-100 font-medium flex items-center"
             >
-              Browse Menu
+              <span className="mr-2">Continue Shopping</span>
             </Link>
           </div>
-        ) : (
-          <>
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="bg-white rounded-lg shadow-md overflow-hidden mb-6 border border-purple-100"
-            >
-              <div className="p-4 bg-purple-600 text-white font-medium">
-                {cart.length} {cart.length === 1 ? "Item" : "Items"} in Cart
+
+          {cart.length === 0 ? (
+            <div className="bg-black bg-opacity-80 rounded-lg shadow-md p-8 text-center border border-gray-800">
+              <div className="flex justify-center mb-4">
+                <FiShoppingBag size={60} className="text-gray-600" />
               </div>
+              <p className="text-gray-400 text-lg mb-6">Your cart is empty</p>
+              <Link
+                to="/menu"
+                className="px-6 py-3 rounded-lg bg-gradient-to-r from-gray-800 to-gray-700 text-white font-medium hover:from-gray-700 hover:to-gray-600 transition-all duration-300"
+              >
+                Browse Menu
+              </Link>
+            </div>
+          ) : (
+            <>
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="bg-black bg-opacity-80 rounded-lg shadow-lg overflow-hidden mb-6 border border-gray-800"
+              >
+                <div className="p-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white font-medium">
+                  {cart.length} {cart.length === 1 ? "Item" : "Items"} in Cart
+                </div>
 
-              <motion.ul className="divide-y divide-purple-100">
-                {groupedItems.map((item) => (
-                  <motion.li
-                    key={item.id}
-                    variants={itemVariants}
-                    className="flex justify-between items-center p-4 hover:bg-purple-50 transition-all duration-200"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-16 h-16 rounded-lg object-cover border border-purple-100"
-                      />
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-800">
-                          {item.name}
-                        </h3>
-                        <p className="text-purple-600 font-medium">
-                          ₹{item.price}
-                        </p>
+                <motion.ul className="divide-y divide-gray-800">
+                  {groupedItems.map((item) => (
+                    <motion.li
+                      key={item.id}
+                      variants={itemVariants}
+                      className="flex justify-between items-center p-4 hover:bg-gray-900 transition-all duration-200"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-16 h-16 rounded-lg object-cover border border-gray-700"
+                        />
+                        <div>
+                          <h3 className="text-lg font-medium text-gray-200">
+                            {item.name}
+                          </h3>
+                          <p className="text-gray-400 font-medium">
+                            ₹{item.price}
+                          </p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center">
-                      <div className="flex items-center mr-4 bg-white border border-purple-200 rounded-lg overflow-hidden">
+                      <div className="flex items-center">
+                        <div className="flex items-center mr-4 bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
+                          <button
+                            onClick={() => handleDecreaseQuantity(item.id)}
+                            className="p-2 text-gray-400 hover:bg-gray-800"
+                            aria-label="Decrease quantity"
+                          >
+                            <FiMinus size={16} />
+                          </button>
+                          <span className="px-3 font-medium text-gray-300">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => addToCart(item)}
+                            className="p-2 text-gray-400 hover:bg-gray-800"
+                            aria-label="Increase quantity"
+                          >
+                            <FiPlus size={16} />
+                          </button>
+                        </div>
                         <button
-                          onClick={() => handleDecreaseQuantity(item.id)}
-                          className="p-2 text-purple-600 hover:bg-purple-50"
-                          aria-label="Decrease quantity"
+                          onClick={() => {
+                            // Remove all instances of this item
+                            for (let i = 0; i < item.quantity; i++) {
+                              removeFromCart(item.id);
+                            }
+                          }}
+                          className="text-gray-500 hover:text-gray-300 p-2 rounded-full hover:bg-gray-800"
+                          aria-label="Remove item"
                         >
-                          <FiMinus size={16} />
-                        </button>
-                        <span className="px-3 font-medium text-purple-800">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => addToCart(item)}
-                          className="p-2 text-purple-600 hover:bg-purple-50"
-                          aria-label="Increase quantity"
-                        >
-                          <FiPlus size={16} />
+                          <FiTrash2 size={20} />
                         </button>
                       </div>
-                      <button
-                        onClick={() => {
-                          // Remove all instances of this item
-                          for (let i = 0; i < item.quantity; i++) {
-                            removeFromCart(item.id);
-                          }
-                        }}
-                        className="text-gray-400 hover:text-purple-600 p-2 rounded-full hover:bg-purple-50"
-                        aria-label="Remove item"
-                      >
-                        <FiTrash2 size={20} />
-                      </button>
-                    </div>
-                  </motion.li>
-                ))}
-              </motion.ul>
-            </motion.div>
+                    </motion.li>
+                  ))}
+                </motion.ul>
+              </motion.div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-purple-100">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium text-purple-800">
-                  ₹{totalPrice}
-                </span>
-              </div>
-              <div className="border-t border-purple-100 pt-4 mt-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-gray-800">Total</span>
-                  <span className="text-lg font-bold text-purple-700">
+              <div className="bg-black bg-opacity-80 rounded-lg shadow-md p-6 mb-6 border border-gray-800">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-gray-400">Subtotal</span>
+                  <span className="font-medium text-gray-200">
                     ₹{totalPrice}
                   </span>
                 </div>
+                <div className="border-t border-gray-800 pt-4 mt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-300">
+                      Total
+                    </span>
+                    <span className="text-lg font-bold text-white">
+                      ₹{totalPrice}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="flex flex-col md:flex-row justify-between gap-4">
-              <button
-                onClick={clearCart}
-                className="px-6 py-3 rounded-lg border border-purple-600 text-purple-600 font-medium hover:bg-purple-50 transition-all duration-300"
-              >
-                Clear Cart
-              </button>
+              <div className="flex flex-col md:flex-row justify-between gap-4">
+                <button
+                  onClick={clearCart}
+                  className="px-6 py-3 rounded-lg border border-gray-600 text-gray-400 font-medium hover:bg-gray-900 transition-all duration-300"
+                >
+                  Clear Cart
+                </button>
 
-              {/* Option 1: Direct invoice button */}
-              <Link
-                to="/invoice"
-                className="px-6 py-3 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-all duration-300 text-center flex items-center justify-center"
-              >
-                <FiFileText className="mr-2" />
-                View Invoice
-              </Link>
-
-              {/* Option 2: Keep checkout but with modified style (uncomment if needed) 
-              <Link
-                to="/checkout"
-                className="px-6 py-3 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-all duration-300 text-center"
-              >
-                Proceed to Checkout
-              </Link>
-              */}
-            </div>
-          </>
-        )}
-      </div>
-    </motion.div>
+                {/* Direct invoice button */}
+                <Link
+                  to="/invoice"
+                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-gray-800 to-gray-700 text-white font-medium hover:from-gray-700 hover:to-gray-600 transition-all duration-300 text-center flex items-center justify-center"
+                >
+                  <FiFileText className="mr-2" />
+                  View Invoice
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
