@@ -1,29 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { FiMenu, FiX, FiUser, FiHome, FiBook, FiInfo, FiMail, FiChevronDown } from "react-icons/fi";
+import {
+  FiMenu,
+  FiX,
+  FiUser,
+  FiHome,
+  FiBook,
+  FiInfo,
+  FiShoppingCart,
+  FiChevronDown,
+} from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
-import { FiShoppingCart } from 'react-icons/fi';
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useNavigate, useLocation } from "react-router-dom";
 
 gsap.registerPlugin(ScrollToPlugin);
 
 const Navbar = ({ isAdmin, currentUser }) => {
+  // State management
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState("Home");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  // Router hooks
   const navigate = useNavigate();
   const location = useLocation();
 
-  const menuItems = React.useMemo(() => [
-    { name: "Home", icon: <FiHome />, path: "/home" },
-    { name: "Menu", icon: <FiBook />, path: "/menu" },
-    { name: "Cart", icon: <FiShoppingCart />, path: "/cart" },
-    { name: "About", icon: <FiInfo />, path: "/about" }
-  ], []);
+  // Menu items configuration
+  const menuItems = React.useMemo(
+    () => [
+      { name: "Home", icon: <FiHome />, path: "/home" },
+      { name: "Menu", icon: <FiBook />, path: "/menu" },
+      { name: "Cart", icon: <FiShoppingCart />, path: "/cart" },
+      { name: "About", icon: <FiInfo />, path: "/about" },
+    ],
+    []
+  );
 
-  // Mock user data (replace with actual Firebase data)
+  // User data (replace with actual data source)
   const userData = currentUser || {
     name: "Shreyas Saha",
     email: "shreyassaha00@gmail.com",
@@ -31,82 +46,59 @@ const Navbar = ({ isAdmin, currentUser }) => {
     department: "Computer Science",
     rollNumber: "UG/02/BTCSE/2023/096",
     section: "B",
-    semester: "4th Semester"
+    semester: "4th Semester",
   };
 
+  // Set active menu item based on current path
   useEffect(() => {
-    // Set active item based on current path
     const currentPath = location.pathname;
-    const currentItem = menuItems.find(item => item.path === currentPath);
+    const currentItem = menuItems.find((item) => item.path === currentPath);
     if (currentItem) {
       setActiveItem(currentItem.name);
     }
   }, [location.pathname, menuItems]);
 
+  // Handle scroll effects
   useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
-      if (offset > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(offset > 50);
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu and profile dropdown when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isOpen && !event.target.closest(".mobile-menu-container")) {
         setIsOpen(false);
       }
-      if (showProfileDropdown && !event.target.closest(".profile-dropdown-container")) {
+      if (
+        showProfileDropdown &&
+        !event.target.closest(".profile-dropdown-container")
+      ) {
         setShowProfileDropdown(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, showProfileDropdown]);
 
-  // Handle navigation - either scroll or redirect
+  // Navigation handler
   const handleNavigation = (itemName, itemPath) => {
-    // Close the mobile menu if it's open
     setIsOpen(false);
-
-    // Set the active menu item
     setActiveItem(itemName);
+    navigate(itemPath);
+  };
 
-    // If it's the menu page, navigate to it
-    if (itemName === "Menu") {
-      navigate(itemPath);
-    } else if (location.pathname === "/") {
-      // If we're on the home page, scroll to section
-      const sectionId = itemName.toLowerCase();
-      const section = document.getElementById(sectionId);
-
-      if (section) {
-        // Use GSAP to smoothly scroll to the section
-        gsap.to(window, {
-          duration: 1,
-          scrollTo: {
-            y: `#${sectionId}`,
-            offsetY: 80 // Offset to account for the navbar height
-          },
-          ease: "power3.inOut"
-        });
-      }
-    } else {
-      // If we're on another page, navigate to home first
-      navigate(itemPath);
-    }
+  // Handle sign out
+  const handleSignOut = () => {
+    console.log("Signing out");
+    navigate("/");
+    setShowProfileDropdown(false);
   };
 
   return (
@@ -114,284 +106,304 @@ const Navbar = ({ isAdmin, currentUser }) => {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className={`fixed top-5 left-1/2 transform -translate-x-1/2 backdrop-blur-md rounded-full z-50 w-[90%] md:w-4/5 lg:w-3/4 xl:w-2/3 ${
-        scrolled ? "bg-white/50 shadow-lg shadow-purple-100/50" : "bg-white/30"
-      } transition-all duration-300 ease-in-out`}
+      className={`fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-[90%] md:w-4/5 lg:w-3/4 ${
+        scrolled ? "bg-black/85 shadow-lg shadow-orange-500/40" : "bg-black/75"
+      } backdrop-blur-md rounded-2xl transition-all duration-500 border border-orange-500/20`}
     >
-      <div className="flex justify-between items-center w-full px-6 py-3 md:px-8">
-        {/* Brand Name with enhanced sparkle effect */}
-        <motion.a
-          onClick={() => navigate("/")}
-          className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 bg-clip-text text-transparent relative cursor-pointer"
+      <div className="flex justify-between items-center w-full px-6 py-3">
+        {/* Logo with fire effect */}
+        <motion.div
+          onClick={() => navigate("/home")}
+          className="cursor-pointer relative group"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 bg-clip-text text-transparent relative cursor-pointer">
-            MunchMate
+          <span className="text-2xl font-bold text-white relative">
+            <span className="bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
+              Munch
+            </span>
+            <span className="text-white">Mate</span>
             <motion.span
-              className="absolute -top-1 -right-3 text-yellow-400 text-xs"
-              initial={{ rotate: 0 }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+              className="absolute -top-2 -right-4 text-orange-500 text-lg"
+              animate={{
+                y: [0, -5, 0],
+                opacity: [1, 0.8, 1],
+                scale: [1, 1.2, 1],
+                rotate: 5,
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
             >
-              ✨
-            </motion.span>
-            <motion.span
-              className="absolute -bottom-1 -left-2 text-yellow-400 text-xs opacity-0 group-hover:opacity-100"
-              initial={{ scale: 0 }}
-              whileHover={{ scale: 1, rotate: 360 }}
-              transition={{ duration: 0.5 }}
-            >
-              ✨
+              🔥
             </motion.span>
           </span>
-        </motion.a>
+        </motion.div>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-8">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex space-x-10">
           {menuItems.map((item) => (
-            <motion.a
+            <NavItem
               key={item.name}
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigation(item.name, item.path);
-              }}
-              className={`flex items-center space-x-1 text-gray-700 hover:text-purple-600 relative font-medium cursor-pointer ${
-                activeItem === item.name ? "text-purple-600 font-semibold" : ""
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className="hidden lg:inline">{item.icon}</span>
-              <span>{item.name}</span>
-              <motion.span
-                className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full ${
-                  activeItem === item.name ? "w-full" : "w-0"
-                }`}
-                whileHover={{ width: "100%" }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.a>
+              item={item}
+              isActive={activeItem === item.name}
+              onClick={() => handleNavigation(item.name, item.path)}
+            />
           ))}
         </div>
 
-        {/* User Profile Button (Desktop) */}
-        <div className="hidden md:flex space-x-3 items-center">
+        {/* User Profile (Desktop) */}
+        <div className="hidden md:flex space-x-2 items-center">
           {isAdmin ? (
-            <motion.a
-              onClick={() => navigate("/admin/menu")}
-              className="flex items-center space-x-1 bg-amber-500 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300 cursor-pointer"
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0 10px 15px rgba(245, 158, 11, 0.3)",
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span>Admin Panel</span>
-            </motion.a>
+            <AdminButton onClick={() => navigate("/admin/menu")} />
           ) : (
-            <div className="relative profile-dropdown-container">
-              <motion.button
-                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300"
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
-                  background:
-                    "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)",
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FiUser className="inline-block" />
-                <span>{userData.name.split(" ")[0]}</span>
-                <FiChevronDown className={`transform transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
-              </motion.button>
-              
-              <AnimatePresence>
-                {showProfileDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-64 bg-white bg-opacity-90 backdrop-blur-md shadow-lg rounded-xl p-4 z-50"
-                  >
-                    <div className="flex flex-col space-y-2">
-                      <div className="border-b border-gray-200 pb-2 mb-2">
-                        <h3 className="font-bold text-gray-800">{userData.name}</h3>
-                        <p className="text-sm text-gray-600">{userData.email}</p>
-                        <p className="text-sm text-gray-600">{userData.contactNumber}</p>
-                      </div>
-                      <div className="text-sm">
-                        <p className="flex justify-between"><span className="font-medium">Department:</span> <span>{userData.department}</span></p>
-                        <p className="flex justify-between"><span className="font-medium">Roll Number:</span> <span>{userData.rollNumber}</span></p>
-                        <p className="flex justify-between"><span className="font-medium">Section:</span> <span>{userData.section}</span></p>
-                        <p className="flex justify-between"><span className="font-medium">Semester:</span> <span>{userData.semester}</span></p>
-                      </div>
-                      <div className="pt-2 border-t border-gray-200">
-                        <motion.button
-                          onClick={() => navigate("/UserDetails")}
-                          className="w-full text-center text-purple-600 hover:text-purple-800 text-sm py-1"
-                          whileHover={{ scale: 1.05 }}
-                        >
-                          Edit Profile
-                        </motion.button>
-                        <motion.button
-                          onClick={() => {
-                            // Handle sign out logic here
-                            console.log("Signing out");
-                            navigate("/");
-                          }}
-                          className="w-full text-center text-red-500 hover:text-red-700 text-sm py-1"
-                          whileHover={{ scale: 1.05 }}
-                        >
-                          Sign Out
-                        </motion.button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <ProfileDropdown
+              userData={userData}
+              isOpen={showProfileDropdown}
+              toggleDropdown={() =>
+                setShowProfileDropdown(!showProfileDropdown)
+              }
+              onEditProfile={() => navigate("/UserDetails")}
+              onSignOut={handleSignOut}
+            />
           )}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Toggle Button */}
         <motion.button
-          className="md:hidden text-2xl text-purple-600 relative z-50 mobile-menu-container"
+          className="md:hidden text-2xl text-orange-500 relative z-50 bg-black/40 p-2 rounded-full"
           onClick={() => setIsOpen(!isOpen)}
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.6)" }}
           whileTap={{ scale: 0.9 }}
           aria-label="Toggle menu"
         >
           <AnimatePresence mode="wait">
-            {isOpen ? (
-              <motion.div
-                key="close"
-                initial={{ rotate: -90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: 90, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <FiX />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="menu"
-                initial={{ rotate: 90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: -90, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <FiMenu />
-              </motion.div>
-            )}
+            {isOpen ? <FiX /> : <FiMenu />}
           </AnimatePresence>
         </motion.button>
       </div>
 
-      {/* Mobile Menu (Floating) */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden absolute top-16 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 backdrop-blur-md shadow-lg rounded-xl p-6 flex flex-col space-y-4 w-64 text-center mobile-menu-container"
-          >
-            {/* User Profile Info (Mobile) */}
-            <div className="border-b border-gray-200 pb-3 mb-1">
-              <h3 className="font-bold text-gray-800">{userData.name}</h3>
-              <p className="text-xs text-gray-600">{userData.email}</p>
-              <p className="text-xs text-gray-600">{userData.rollNumber}</p>
-            </div>
-            
-            {menuItems.map((item, index) => (
-              <motion.a
-                key={item.name}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavigation(item.name, item.path);
-                }}
-                className={`flex items-center justify-center space-x-2 text-gray-700 hover:text-purple-600 py-2 font-medium cursor-pointer ${
-                  activeItem === item.name
-                    ? "text-purple-600 font-semibold"
-                    : ""
-                }`}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{
-                  scale: 1.05,
-                  x: 5,
-                  backgroundColor: "rgba(233, 213, 255, 0.3)",
-                  borderRadius: "0.5rem",
-                }}
-              >
-                <span>{item.icon}</span>
-                <span>{item.name}</span>
-              </motion.a>
-            ))}
-
-            <div className="pt-2 flex flex-col space-y-3">
-              {isAdmin ? (
-                <motion.a
-                  onClick={() => navigate("/admin/menu")}
-                  className="flex items-center justify-center space-x-2 bg-amber-500 text-white px-4 py-2 rounded-full hover:shadow-lg cursor-pointer"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <span>Admin Panel</span>
-                </motion.a>
-              ) : (
-                <>
-                  <motion.a
-                    onClick={() => navigate("/profile")}
-                    className="flex items-center justify-center space-x-2 text-purple-600 border border-purple-200 px-4 py-2 rounded-full hover:bg-purple-50"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                    whileHover={{
-                      scale: 1.05,
-                      backgroundColor: "rgba(233, 213, 255, 0.3)",
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FiUser className="inline-block" />
-                    <span>View Profile</span>
-                  </motion.a>
-
-                  <motion.button
-                    onClick={() => {
-                      // Handle sign out logic here
-                      console.log("Signing out");
-                      navigate("/");
-                      setIsOpen(false);
-                    }}
-                    className="flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full hover:shadow-lg"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    whileHover={{
-                      scale: 1.05,
-                      boxShadow: "0 10px 15px rgba(239, 68, 68, 0.3)",
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <span>Sign Out</span>
-                  </motion.button>
-                </>
-              )}
-            </div>
-          </motion.div>
+          <MobileMenu
+            userData={userData}
+            menuItems={menuItems}
+            activeItem={activeItem}
+            isAdmin={isAdmin}
+            onNavigate={handleNavigation}
+            onSignOut={handleSignOut}
+          />
         )}
       </AnimatePresence>
     </motion.nav>
   );
 };
+
+// Desktop Navigation Item
+const NavItem = ({ item, isActive, onClick }) => (
+  <motion.a
+    onClick={(e) => {
+      e.preventDefault();
+      onClick();
+    }}
+    className="relative group"
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    <div
+      className={`flex items-center space-x-2 relative font-medium cursor-pointer ${
+        isActive ? "text-orange-400" : "text-gray-300"
+      }`}
+    >
+      <span>{item.icon}</span>
+      <span>{item.name}</span>
+    </div>
+
+    <motion.div
+      className={`h-0.5 bg-orange-500 rounded-full absolute bottom-0 left-0 w-0 group-hover:w-full ${
+        isActive ? "opacity-100" : "opacity-0"
+      }`}
+      animate={
+        isActive ? { width: "100%", opacity: 1 } : { width: "0%", opacity: 0 }
+      }
+      transition={{ duration: 0.3 }}
+    />
+
+    <motion.div
+      className="h-0.5 bg-orange-500 rounded-full absolute bottom-0 left-0 w-0 opacity-0 group-hover:opacity-100"
+      whileHover={{ width: "100%" }}
+      transition={{ duration: 0.3 }}
+    />
+  </motion.a>
+);
+
+// Admin Button Component
+const AdminButton = ({ onClick }) => (
+  <motion.button
+    onClick={onClick}
+    className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-4 py-2 rounded-full overflow-hidden relative"
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    <span className="relative z-10">Admin</span>
+    <motion.div
+      className="absolute inset-0 bg-black/20"
+      initial={{ x: "-100%" }}
+      whileHover={{ x: "0%" }}
+      transition={{ duration: 0.3 }}
+    />
+  </motion.button>
+);
+
+// Desktop Profile Dropdown
+const ProfileDropdown = ({
+  userData,
+  isOpen,
+  toggleDropdown,
+  onEditProfile,
+  onSignOut,
+}) => (
+  <div className="relative profile-dropdown-container">
+    <motion.button
+      onClick={toggleDropdown}
+      className="flex items-center space-x-2 bg-gradient-to-r from-orange-600 to-black text-white px-4 py-2 rounded-full overflow-hidden relative"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <FiUser className="inline-block" />
+      <span>{userData.name.split(" ")[0]}</span>
+      <motion.div
+        animate={{ rotate: isOpen ? 180 : 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <FiChevronDown />
+      </motion.div>
+
+      <motion.div
+        className="absolute inset-0 bg-black/20"
+        initial={{ x: "-100%" }}
+        whileHover={{ x: "0%" }}
+        transition={{ duration: 0.3 }}
+      />
+    </motion.button>
+
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          className="absolute right-0 mt-2 w-64 bg-black/90 backdrop-blur-md shadow-lg rounded-xl p-4 z-50 border border-orange-500/20 text-white"
+        >
+          <div className="flex flex-col space-y-3">
+            <div className="border-b border-orange-500/20 pb-2">
+              <h3 className="font-bold text-orange-400">{userData.name}</h3>
+              <p className="text-sm text-gray-300">{userData.email}</p>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <motion.button
+                onClick={onEditProfile}
+                className="text-orange-400 hover:text-orange-300 text-sm py-1 px-3 rounded-md bg-white/5 hover:bg-white/10"
+                whileHover={{ scale: 1.05 }}
+              >
+                Edit Profile
+              </motion.button>
+              <motion.button
+                onClick={onSignOut}
+                className="text-white hover:text-gray-200 text-sm py-1 px-3 rounded-md bg-orange-600/20 hover:bg-orange-600/40"
+                whileHover={{ scale: 1.05 }}
+              >
+                Sign Out
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
+
+// Mobile Menu Component
+const MobileMenu = ({
+  userData,
+  menuItems,
+  activeItem,
+  isAdmin,
+  onNavigate,
+  onSignOut,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: -20, scale: 0.95 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: -20, scale: 0.95 }}
+    transition={{ duration: 0.2 }}
+    className="md:hidden absolute top-16 right-0 bg-black/95 backdrop-blur-md shadow-lg rounded-xl p-5 flex flex-col space-y-4 w-60 mobile-menu-container border-l border-t border-orange-500/20"
+  >
+    {/* User Profile Summary */}
+    <div className="flex items-center space-x-3 border-b border-orange-500/20 pb-3">
+      <div className="bg-orange-500/20 rounded-full p-2">
+        <FiUser className="text-orange-400" />
+      </div>
+      <div className="text-left">
+        <h3 className="font-bold text-orange-400">
+          {userData.name.split(" ")[0]}
+        </h3>
+        <p className="text-xs text-gray-400 truncate">{userData.email}</p>
+      </div>
+    </div>
+
+    {/* Menu Items */}
+    <div className="space-y-1">
+      {menuItems.map((item, index) => (
+        <motion.a
+          key={item.name}
+          onClick={(e) => {
+            e.preventDefault();
+            onNavigate(item.name, item.path);
+          }}
+          className={`flex items-center space-x-3 py-2 px-3 rounded-lg transition-colors ${
+            activeItem === item.name
+              ? "bg-orange-500/20 text-orange-400"
+              : "text-gray-300 hover:bg-orange-500/10 hover:text-orange-400"
+          }`}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: index * 0.05 }}
+        >
+          <span className="text-lg">{item.icon}</span>
+          <span>{item.name}</span>
+        </motion.a>
+      ))}
+    </div>
+
+    {/* Action Buttons */}
+    <div className="pt-2 border-t border-orange-500/20">
+      {isAdmin ? (
+        <motion.button
+          onClick={() => onNavigate("Admin", "/admin/menu")}
+          className="w-full bg-gradient-to-r from-orange-600 to-black text-white py-2 rounded-lg hover:shadow-lg"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          Admin Panel
+        </motion.button>
+      ) : (
+        <motion.button
+          onClick={onSignOut}
+          className="w-full bg-gradient-to-r from-orange-600 to-black text-white py-2 rounded-lg hover:shadow-lg"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          Sign Out
+        </motion.button>
+      )}
+    </div>
+  </motion.div>
+);
 
 export default Navbar;

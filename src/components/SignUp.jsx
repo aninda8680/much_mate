@@ -4,6 +4,7 @@ import { Utensils, AlertTriangle, CheckCircle } from "lucide-react";
 import { auth } from "../config"; // Adjust path as needed
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import Aurora from "./Aurora"; // Make sure this path is correct
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +28,8 @@ const SignUp = () => {
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Hmm, that doesn't look like a real email";
     } else if (!formData.email.endsWith("adamasuniversity.ac.in")) {
-      newErrors.email = "Please use your Adamas University email (@adamasuniversity.ac.in)";
+      newErrors.email =
+        "Please use your Adamas University email (@adamasuniversity.ac.in)";
     }
 
     // Password validation
@@ -98,13 +100,21 @@ const SignUp = () => {
     navigate("/userdetails");
   };
 
+  // Orange themed Aurora colors
+  const auroraColors = ["#FF6600", "#FF8800", "#FFAA33"];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-200 via-purple-300 to-purple-900 p-6">
+    <div className="min-h-screen flex items-center justify-center relative bg-black">
+      {/* Aurora Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <Aurora colorStops={auroraColors} amplitude={1.2} blend={0.7} />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 120 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden z-10"
       >
         {isSubmitted ? (
           <motion.div
@@ -112,8 +122,8 @@ const SignUp = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center p-8"
           >
-            <CheckCircle className="mx-auto text-purple-500 mb-4" size={64} />
-            <h2 className="text-2xl font-bold text-purple-700 mb-4">
+            <CheckCircle className="mx-auto text-orange-500 mb-4" size={64} />
+            <h2 className="text-2xl font-bold text-orange-700 mb-4">
               Welcome to MunchMate!
             </h2>
             <p className="text-gray-600">
@@ -123,14 +133,14 @@ const SignUp = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleContinue}
-              className="mt-6 px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition duration-300"
+              className="mt-6 px-6 py-2 bg-gradient-to-r from-orange-600 to-orange-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition duration-300"
             >
               Continue to Complete Profile
             </motion.button>
           </motion.div>
         ) : (
           <>
-            <div className="bg-gradient-to-r from-purple-600 to-purple-500 p-6 text-center">
+            <div className="bg-gradient-to-r from-orange-600 to-orange-500 p-6 text-center">
               <Utensils className="mx-auto text-white" size={48} />
               <h2 className="text-3xl font-bold text-white mt-2">
                 MunchMate Signup
@@ -169,7 +179,7 @@ const SignUp = () => {
                   className={`w-full p-3 rounded-lg border ${
                     errors.email
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-purple-500"
+                      : "border-gray-300 focus:ring-orange-500"
                   } focus:outline-none focus:ring-2`}
                 />
                 {errors.email && (
@@ -198,7 +208,7 @@ const SignUp = () => {
                   className={`w-full p-3 rounded-lg border ${
                     errors.password
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-purple-500"
+                      : "border-gray-300 focus:ring-orange-500"
                   } focus:outline-none focus:ring-2`}
                 />
                 {errors.password && (
@@ -227,7 +237,7 @@ const SignUp = () => {
                   className={`w-full p-3 rounded-lg border ${
                     errors.confirmPassword
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-purple-500"
+                      : "border-gray-300 focus:ring-orange-500"
                   } focus:outline-none focus:ring-2`}
                 />
                 {errors.confirmPassword && (
@@ -243,7 +253,7 @@ const SignUp = () => {
                 disabled={isLoading}
                 whileHover={!isLoading ? { scale: 1.05 } : {}}
                 whileTap={!isLoading ? { scale: 0.95 } : {}}
-                className={`w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition duration-300 flex items-center justify-center ${
+                className={`w-full py-3 bg-gradient-to-r from-orange-600 to-orange-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition duration-300 flex items-center justify-center ${
                   isLoading ? "opacity-70 cursor-not-allowed" : ""
                 }`}
               >
@@ -276,16 +286,16 @@ const SignUp = () => {
                 )}
               </motion.button>
 
-              {/* New section for existing users */}
+              {/* Sign In Option */}
               <div className="mt-4 text-center">
                 <p className="text-gray-600">
                   Already have an account?{" "}
                   <button
                     type="button"
                     onClick={() => {
-                      navigate("/signin"); // Using navigate instead of window.location
+                      navigate("/signin");
                     }}
-                    className="text-purple-600 hover:text-purple-800 font-semibold transition duration-300"
+                    className="text-orange-600 hover:text-orange-800 font-semibold transition duration-300"
                   >
                     Sign In
                   </button>

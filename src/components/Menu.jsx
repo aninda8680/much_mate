@@ -1,277 +1,282 @@
-import React, { useState, useEffect } from "react";
-import { motion } from 'framer-motion';
-import { FiShoppingCart, FiFilter, FiSearch, FiXCircle } from "react-icons/fi";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FiShoppingCart,
+  FiSearch,
+  FiXCircle,
+  FiMinus,
+  FiPlus,
+  FiShoppingBag,
+} from "react-icons/fi";
 import { db } from "../config"; // Firebase config file
 import { collection, getDocs } from "firebase/firestore";
-import { useCart } from "../context/CartContext"; // Import the cart context
+import { useNavigate } from "react-router-dom"; // Import for navigation
+import { useCart } from "../context/CartContext"; // Add this import
+import Squares from "./Squares"; // Import the Squares component
 
 const Menu = () => {
-  const { addToCart } = useCart(); // Get addToCart function from cart context
+  const { cart, addToCart, removeFromCart, decreaseQuantity } = useCart(); // Add decreaseQuantity
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [categories, setCategories] = useState(["All"]);
-  
+  const navigate = useNavigate?.() || { push: () => {} }; // Fallback if useNavigate not available
 
-  useEffect(() => {
-    fetchMenuItems();
-  }, []);
-
-  const fetchMenuItems = async () => {
+  // Optimize fetching by using useCallback
+  const fetchMenuItems = useCallback(async () => {
     try {
       setLoading(true);
       const querySnapshot = await getDocs(collection(db, "menu"));
-      const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
+      const items = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
       // Extract unique categories
-      const uniqueCategories = [...new Set(items.map(item => item.category))];
+      const uniqueCategories = [...new Set(items.map((item) => item.category))];
       setCategories(["All", ...uniqueCategories]);
-      
       setMenuItems(items);
     } catch (error) {
       console.error("Error fetching menu items:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Filter menu items based on search term and category
-  const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = activeCategory === "All" || item.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
+  useEffect(() => {
+    fetchMenuItems();
+  }, [fetchMenuItems]);
 
-  // Card variants for staggered animation
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
+  // Memoize filtered items to prevent unnecessary recalculations
+  const filteredItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      const matchesSearch = item.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        activeCategory === "All" || item.category === activeCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [menuItems, searchTerm, activeCategory]);
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    }
-  };
+  // Get item quantity in cart - updated to count identical items
+  const getItemQuantity = useCallback(
+    (itemId) => {
+      return cart.filter((item) => item.id === itemId).length;
+    },
+    [cart]
+  );
 
-  // Handler for adding item to cart
-  const handleAddToCart = (item) => {
-    // Only add to cart if item is available
-    if (item.isAvailable !== false) {
-      // Create a cart item object with essential properties
-      const cartItem = {
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        image: item.image || "https://via.placeholder.com/400x300?text=Food+Image"
-      };
-      addToCart(cartItem);
-    }
-  };
+  // Calculate total cart quantity
+  const getTotalCartQuantity = useCallback(() => {
+    return cart.length;
+  }, [cart]);
+
+  // Check if cart has any items
+  const hasItemsInCart = useMemo(() => {
+    return cart.length > 0;
+  }, [cart]);
+
+  // Navigate to cart
+  const handleGoToCart = useCallback(() => {
+    navigate("/cart");
+  }, [navigate]);
+
+  // Safe check for window object
+  const isBrowser = typeof window !== "undefined";
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="relative min-h-screen pt-28 pb-16 px-6 md:px-16 lg:px-32"
-    >
-      {/* Beautiful gradient background similar to Hero */}
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white">
-        <div className="absolute inset-0 [background:radial-gradient(125%_125%_at_50%_10%,#fff_80%,#e0cffc_100%)]"></div>
+    <div className="relative min-h-screen pt-30 pb-24 px-4 md:px-8 lg:px-16">
+      {/* Fixed background */}
+      <div className="fixed inset-0 -z-10 bg-black">
+        <div className="absolute inset-0 w-full h-full opacity-20">
+          {isBrowser && window.innerWidth > 768 && (
+            <Squares
+              direction="diagonal"
+              speed={0.5}
+              borderColor="#ff4800"
+              squareSize={50}
+              hoverFillColor="#ff480033"
+            />
+          )}
+        </div>
+        <div className="absolute inset-0 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#ff4800_100%)] opacity-60"></div>
       </div>
-      
-      {/* Subtle animated particles */}
-      {[...Array(8)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full bg-purple-100 opacity-30"
-          style={{
-            width: Math.random() * 60 + 20,
-            height: Math.random() * 60 + 20,
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            filter: "blur(2px)",
-          }}
-          animate={{
-            y: [0, -20, 0],
-            opacity: [0.1, 0.3, 0.1],
-          }}
-          transition={{
-            duration: Math.random() * 8 + 10,
-            repeat: Infinity,
-            delay: Math.random() * 2,
-          }} />
-      ))}
 
       {/* Page Header */}
-      <motion.div 
-        className="text-center mb-12"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 bg-clip-text text-transparent">
           Our Menu
         </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Explore our delicious offerings crafted with care. Order online and enjoy a hassle-free pickup experience.
+        <p className="text-gray-300 max-w-2xl mx-auto text-base">
+          Explore our delicious offerings crafted with care.
         </p>
-      </motion.div>
+      </div>
 
       {/* Search and Filter */}
-      <motion.div 
-        className="mb-10 flex flex-col md:flex-row gap-4 justify-between"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
+      <div className="mb-8 space-y-4">
         {/* Search bar */}
-        <div className="relative w-full md:w-1/3">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-500" />
+        <div className="relative w-full">
+          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500" />
           <input
             type="text"
             placeholder="Search menu..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full py-3 pl-10 pr-4 rounded-full border border-purple-200 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 transition-all duration-300 bg-white bg-opacity-70 backdrop-blur-sm"
+            className="w-full py-2 pl-10 pr-4 rounded-full border border-orange-600 focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 transition-all duration-300 bg-black bg-opacity-70 text-white text-base"
           />
         </div>
 
         {/* Category filter */}
-        <motion.div 
-          className="flex flex-wrap gap-2 justify-center md:justify-end"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          {categories.map((category) => (
-            <motion.button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-full transition-all duration-300 ${
-                activeCategory === category
-                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md"
-                  : "bg-white bg-opacity-70 text-gray-700 hover:bg-purple-50"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {category}
-            </motion.button>
-          ))}
-        </motion.div>
-      </motion.div>
+        <div className="overflow-x-auto pb-2 -mx-4 px-4">
+          <div className="flex space-x-2 min-w-max">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
+                  activeCategory === category
+                    ? "bg-gradient-to-r from-orange-600 to-red-600 text-white"
+                    : "bg-black bg-opacity-70 text-gray-300 border border-orange-600"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Menu Grid */}
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full"
-          />
+        <div className="flex justify-center items-center h-48">
+          <div className="w-12 h-12 border-4 border-orange-800 border-t-orange-500 rounded-full animate-spin"></div>
         </div>
       ) : filteredItems.length === 0 ? (
-        <motion.div 
-          className="text-center py-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="text-2xl text-gray-500">No items found. Try another search term or category.</p>
-        </motion.div>
+        <div className="text-center py-12">
+          <p className="text-xl text-gray-400">
+            No items found. Try another search term or category.
+          </p>
+        </div>
       ) : (
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {filteredItems.map((item) => {
             const isUnavailable = item.isAvailable === false;
-            
+            const itemQuantity = getItemQuantity(item.id);
+
             return (
-              <motion.div
+              <div
                 key={item.id}
-                variants={cardVariants}
-                whileHover={{ y: isUnavailable ? 0 : -8, transition: { duration: 0.3 } }}
-                className={`bg-white bg-opacity-70 backdrop-blur-sm rounded-2xl overflow-hidden ${isUnavailable ? 'shadow-none' : 'shadow-md hover:shadow-xl'} transition-all duration-300`}
+                className={`bg-black bg-opacity-70 rounded-xl overflow-hidden border border-orange-900 ${
+                  isUnavailable ? "opacity-75" : "shadow-md"
+                } transition-all duration-300`}
               >
-                <div className="h-56 overflow-hidden relative">
-                  <motion.img 
-                    src={item.image || "https://via.placeholder.com/400x300?text=Food+Image"} 
+                <div className="h-48 overflow-hidden relative">
+                  <img
+                    src={
+                      item.image ||
+                      "https://via.placeholder.com/400x300?text=Food+Image"
+                    }
                     alt={item.name}
-                    className={`w-full h-full object-cover ${isUnavailable ? 'grayscale' : ''}`}
-                    initial={{ scale: 1 }}
-                    whileHover={{ scale: isUnavailable ? 1 : 1.1 }}
-                    transition={{ duration: 0.5 }}
+                    className={`w-full h-full object-cover ${
+                      isUnavailable ? "grayscale" : ""
+                    }`}
+                    loading="lazy"
                   />
                   {item.isNew && !isUnavailable && (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
+                    <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
                       NEW
                     </div>
                   )}
                   {item.isPopular && !isUnavailable && (
-                    <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
+                    <div className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                       POPULAR
                     </div>
                   )}
                   {isUnavailable && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center">
-                      <FiXCircle className="text-white text-4xl mb-2" />
-                      <span className="text-white text-lg font-bold px-4 py-2 bg-black bg-opacity-50 rounded-lg">
+                    <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center">
+                      <FiXCircle className="text-orange-500 text-3xl mb-1" />
+                      <span className="text-orange-500 text-base font-bold px-3 py-1 bg-black bg-opacity-70 rounded-lg">
                         NOT AVAILABLE
                       </span>
                     </div>
                   )}
                 </div>
-                <div className={`p-6 ${isUnavailable ? 'opacity-70' : ''}`}>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className={`text-xl font-bold ${isUnavailable ? 'text-gray-600' : 'text-gray-800'}`}>{item.name}</h3>
-                    <div className={`text-xl font-bold ${isUnavailable ? 'text-gray-600' : 'bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent'}`}>
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3
+                      className={`text-lg font-bold ${
+                        isUnavailable ? "text-gray-500" : "text-gray-200"
+                      }`}
+                    >
+                      {item.name}
+                    </h3>
+                    <div
+                      className={`text-lg font-bold ${
+                        isUnavailable
+                          ? "text-gray-500"
+                          : "bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent"
+                      }`}
+                    >
                       ${item.price?.toFixed(2) || "9.99"}
                     </div>
                   </div>
-                  <div className="flex justify-center">
-                    {isUnavailable ? (
-                      <div className="text-sm text-gray-500 px-4 py-2">
-                        Out of Stock
-                      </div>
-                    ) : (
-                      <motion.button
-                        onClick={() => handleAddToCart(item)}
-                        className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg w-full justify-center"
-                        whileHover={{
-                          scale: 1.05,
-                          boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <FiShoppingCart />
-                        <span>Add to Cart</span>
-                      </motion.button>
-                    )}
-                  </div>
+                  {!isUnavailable && (
+                    <>
+                      {itemQuantity > 0 ? (
+                        <div className="flex items-center justify-between">
+                          <button
+                            onClick={() => decreaseQuantity(item.id)}
+                            className="flex items-center justify-center bg-gradient-to-r from-orange-800 to-red-800 text-white h-10 w-10 rounded-full active:scale-95 transition-transform"
+                          >
+                            <FiMinus />
+                          </button>
+
+                          <div className="text-gray-200 font-semibold">
+                            {itemQuantity} in cart
+                          </div>
+
+                          <button
+                            onClick={() => addToCart(item)}
+                            className="flex items-center justify-center bg-gradient-to-r from-orange-600 to-red-600 text-white h-10 w-10 rounded-full active:scale-95 transition-transform"
+                          >
+                            <FiPlus />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => addToCart(item)}
+                          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 py-2 rounded-full w-full active:scale-95 transition-transform"
+                        >
+                          <FiShoppingCart />
+                          <span>Add to Cart</span>
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+
+      {/* Go to Cart button - fixed at bottom */}
+      {hasItemsInCart && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <button
+            onClick={handleGoToCart}
+            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-full shadow-lg active:scale-95 transition-transform"
+          >
+            <FiShoppingBag className="text-xl" />
+            <span className="font-semibold">
+              Go to Cart ({getTotalCartQuantity()})
+            </span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -9,7 +9,7 @@ const Invoice = () => {
   const invoiceRef = useRef(null);
   const [qrCode, setQrCode] = useState(null);
   const [paymentId, setPaymentId] = useState(null);
-  
+
   // Group identical items together (same as in Cart component)
   const groupedItems = cart.reduce((acc, item) => {
     const existingItem = acc.find((i) => i.id === item.id);
@@ -25,20 +25,20 @@ const Invoice = () => {
   const totalPrice = cart
     .reduce((total, item) => total + item.price, 0)
     .toFixed(2);
-    
+
   // Generate a random invoice number
   const invoiceNumber = `INV-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-  
+
   // Current date formatted as DD/MM/YYYY
   const currentDate = new Date().toLocaleDateString('en-GB');
-  
+
   // Load Razorpay script
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
     document.body.appendChild(script);
-    
+
     return () => {
       document.body.removeChild(script);
     };
@@ -72,37 +72,37 @@ const Invoice = () => {
         color: "#7c3aed" // Purple color to match the theme
       }
     };
-    
+
     const paymentObject = new window.Razorpay(options);
     paymentObject.open();
   };
-  
+
   // Generate QR code (simulate for now)
   const generateQRCode = (paymentId) => {
     // In a real implementation, you would generate a QR code using the payment ID
     // For this example, we'll use a placeholder QR code
     setQrCode(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${paymentId}`);
   };
-  
+
   // Print invoice function
   const handlePrint = () => {
     const printContent = invoiceRef.current.innerHTML;
     const originalContent = document.body.innerHTML;
-    
+
     document.body.innerHTML = printContent;
     window.print();
     document.body.innerHTML = originalContent;
-    
+
     // This is a hack to restore React functionality after printing
     window.location.reload();
   };
-  
+
   // Function to download as PDF (this is a simplified version)
   // In a real app, you'd use a library like jsPDF or html2pdf
   const handleDownload = () => {
     alert("In a real app, this would generate a PDF for download. You'd need to implement this with a library like jsPDF or html2pdf.");
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -110,7 +110,7 @@ const Invoice = () => {
       transition={{ duration: 0.5 }}
       className="min-h-screen p-4 md:p-8 bg-gray-50"
     >
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto py-22">
         <div className="flex items-center justify-between mb-6">
           <Link
             to="/cart"
@@ -118,7 +118,7 @@ const Invoice = () => {
           >
             <FiArrowLeft className="mr-2" /> Back to Cart
           </Link>
-          
+
           <div className="flex gap-2">
             <button
               onClick={handlePrint}
@@ -146,7 +146,7 @@ const Invoice = () => {
             </Link>
           </div>
         ) : (
-          <div 
+          <div
             ref={invoiceRef}
             className="bg-white rounded-lg shadow-md p-6 md:p-8"
           >
@@ -161,7 +161,7 @@ const Invoice = () => {
                 <p>{currentDate}</p>
               </div>
             </div>
-            
+
             {/* Business & Customer Info */}
             <div className="flex flex-col md:flex-row justify-between mb-8">
               <div>
@@ -178,7 +178,7 @@ const Invoice = () => {
                 <p className="text-gray-600">Customer Contact</p>
               </div>
             </div>
-            
+
             {/* Items Table */}
             <table className="w-full mb-8">
               <thead>
@@ -209,7 +209,7 @@ const Invoice = () => {
                 ))}
               </tbody>
             </table>
-            
+
             {/* Totals */}
             <div className="flex justify-end">
               <div className="w-full md:w-1/3">
@@ -227,7 +227,7 @@ const Invoice = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Payment Status and QR Code */}
             <div className="mt-8 pt-4 border-t border-gray-200">
               {qrCode ? (
@@ -250,7 +250,7 @@ const Invoice = () => {
                 </div>
               )}
             </div>
-            
+
             {/* Notes */}
             <div className="mt-8 pt-4 border-t border-gray-200">
               <h2 className="font-bold text-gray-800 mb-2">Notes:</h2>
