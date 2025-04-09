@@ -6,7 +6,7 @@ import {
   FiShoppingBag,
   FiPlus,
   FiMinus,
-  FiFileText,
+  FiCreditCard,
 } from "react-icons/fi";
 import Squares from "./Squares"; // Make sure this path is correct
 
@@ -208,13 +208,13 @@ const Cart = () => {
                   Clear Cart
                 </button>
 
-                {/* Direct invoice button */}
+                {/* Changed: Invoice button replaced with Payment button */}
                 <Link
-                  to="/invoice"
+                  to="/payment"
                   className="px-6 py-3 rounded-lg bg-gradient-to-r from-gray-800 to-gray-700 text-white font-medium hover:from-gray-700 hover:to-gray-600 transition-all duration-300 text-center flex items-center justify-center"
                 >
-                  <FiFileText className="mr-2" />
-                  View Invoice
+                  <FiCreditCard className="mr-2" />
+                  Proceed to Payment
                 </Link>
               </div>
             </>

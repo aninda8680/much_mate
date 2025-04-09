@@ -13,6 +13,7 @@ import Invoice from './components/Invoice';
 import Landing from "./components/Landing";
 import "./App.css";
 import About from "./components/About";
+import Payment from "./components/Payment";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -46,6 +47,7 @@ function App() {
           <Route path="/admin/menu" element={<AdminMenu />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/payment" element={<Payment />} />
 
           {/* Fallback route */}
         </Routes>
