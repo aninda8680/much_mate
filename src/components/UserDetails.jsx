@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Utensils,
@@ -7,6 +7,7 @@ import {
   User,
   School,
   Phone,
+  BookOpen
 } from "lucide-react";
 import { auth, db } from "../config"; // Adjust path as needed
 import { doc, setDoc } from "firebase/firestore";
@@ -16,6 +17,7 @@ const UserDetails = () => {
   const [formData, setFormData] = useState({
     name: "",
     department: "",
+    course: "",
     section: "",
     semester: "",
     rollNumber: "",
@@ -26,17 +28,131 @@ const UserDetails = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [availableCourses, setAvailableCourses] = useState([]);
 
-  // Options for dropdowns
-  const departments = [
-    "Computer Science",
-    "Information Technology",
-    "Electrical Engineering",
-    "Mechanical Engineering",
-    "Civil Engineering",
-    "Electronics & Communication",
-    "Chemical Engineering",
-  ];
+  // Comprehensive list of departments and courses
+  const departmentsWithCourses = {
+    "Department of Computer Science and Engineering": [
+      "Bachelor of Technology (B.Tech) in Computer Science and Engineering",
+      "Master of Technology (M.Tech) in Computer Science and Engineering"
+    ],
+    "Department of Electrical and Electronics Engineering": [
+      "Bachelor of Technology (B.Tech) in Electrical and Electronics Engineering",
+      "Master of Technology (M.Tech) in Electrical and Electronics Engineering"
+    ],
+    "Department of Civil Engineering": [
+      "Bachelor of Technology (B.Tech) in Civil Engineering",
+      "Master of Technology (M.Tech) in Structural Engineering"
+    ],
+    "Department of Mechanical Engineering": [
+      "Bachelor of Technology (B.Tech) in Mechanical Engineering",
+      "Master of Technology (M.Tech) in Mechanical Engineering"
+    ],
+    "Department of Physics": [
+      "Bachelor of Science (B.Sc) in Physics",
+      "Master of Science (M.Sc) in Physics"
+    ],
+    "Department of Chemistry": [
+      "Bachelor of Science (B.Sc) in Chemistry",
+      "Master of Science (M.Sc) in Chemistry"
+    ],
+    "Department of Mathematics": [
+      "Bachelor of Science (B.Sc) in Mathematics",
+      "Master of Science (M.Sc) in Mathematics"
+    ],
+    "Department of Forensic Science": [
+      "Bachelor of Science (B.Sc) in Forensic Science",
+      "Master of Science (M.Sc) in Forensic Science"
+    ],
+    "Department of Biological Sciences": [
+      "Bachelor of Science (B.Sc) in Biological Sciences",
+      "Master of Science (M.Sc) in Biological Sciences"
+    ],
+    "Department of Biotechnology": [
+      "Bachelor of Science (B.Sc) in Biotechnology",
+      "Master of Science (M.Sc) in Biotechnology"
+    ],
+    "Department of English Language and Literature": [
+      "Bachelor of Arts (B.A) in English Language and Literature",
+      "Master of Arts (M.A) in English Language and Literature"
+    ],
+    "Department of Bengali Language and Literature": [
+      "Bachelor of Arts (B.A) in Bengali Language and Literature",
+      "Master of Arts (M.A) in Bengali Language and Literature"
+    ],
+    "Department of History": [
+      "Bachelor of Arts (B.A) in History",
+      "Master of Arts (M.A) in History"
+    ],
+    "Department of Political Science": [
+      "Bachelor of Arts (B.A) in Political Science",
+      "Master of Arts (M.A) in Political Science"
+    ],
+    "Department of Sociology": [
+      "Bachelor of Arts (B.A) in Sociology",
+      "Master of Arts (M.A) in Sociology"
+    ],
+    "Department of Geography": [
+      "Bachelor of Arts (B.A) in Geography",
+      "Master of Arts (M.A) in Geography"
+    ],
+    "Department of Management": [
+      "Bachelor of Business Administration (BBA)",
+      "Master of Business Administration (MBA)"
+    ],
+    "Department of Commerce and Economics": [
+      "Bachelor of Commerce (B.Com)",
+      "Master of Commerce (M.Com)"
+    ],
+    "Department of Law": [
+      "Bachelor of Arts and Bachelor of Laws (BA LL.B. Hons.)",
+      "Bachelor of Business Administration and Bachelor of Laws (BBA LL.B. Hons.)",
+      "Master of Laws (LL.M.)",
+      "Doctor of Philosophy (Ph.D.) in Law"
+    ],
+    "Department of Education": [
+      "Bachelor of Education (B.Ed)",
+      "Master of Education (M.Ed)",
+      "Doctor of Philosophy (Ph.D.) in Education"
+    ],
+    "Department of Journalism and Mass Communication": [
+      "Bachelor of Arts (B.A) in Journalism and Mass Communication",
+      "Master of Arts (M.A) in Journalism and Mass Communication"
+    ],
+    "Department of Films and Animation": [
+      "Bachelor of Fine Arts (BFA) in Films and Animation",
+      "Master of Fine Arts (MFA) in Films and Animation"
+    ],
+    "Department of Allied Health Sciences": [
+      "Bachelor of Science (B.Sc) in Allied Health Sciences",
+      "Master of Science (M.Sc) in Allied Health Sciences"
+    ],
+    "Department of Pharmaceutical Technology": [
+      "Bachelor of Pharmacy (B.Pharm)",
+      "Diploma in Pharmacy (D.Pharm)"
+    ],
+    "Department of Smart Agriculture": [
+      "Bachelor of Science (B.Sc) in Smart Agriculture",
+      "Master of Science (M.Sc) in Smart Agriculture"
+    ]
+  };
+
+  // Get all department names for the dropdown
+  const departments = Object.keys(departmentsWithCourses);
+
+  // Update courses when department changes
+  useEffect(() => {
+    if (formData.department) {
+      setAvailableCourses(departmentsWithCourses[formData.department] || []);
+      // Reset course selection when department changes
+      setFormData(prevState => ({
+        ...prevState,
+        course: ""
+      }));
+    } else {
+      setAvailableCourses([]);
+    }
+  }, [formData.department]);
 
   const sections = ["A", "B", "C", "D", "E"];
 
@@ -48,7 +164,7 @@ const UserDetails = () => {
     "5th Semester",
     "6th Semester",
     "7th Semester",
-    "8th Semester",
+    "8th Semester"
   ];
 
   const validateForm = () => {
@@ -62,6 +178,11 @@ const UserDetails = () => {
     // Department validation
     if (!formData.department) {
       newErrors.department = "Please select your department";
+    }
+
+    // Course validation
+    if (!formData.course) {
+      newErrors.course = "Please select your course";
     }
 
     // Section validation
@@ -117,6 +238,7 @@ const UserDetails = () => {
           email: user.email,
           name: formData.name,
           department: formData.department,
+          course: formData.course,
           section: formData.section,
           semester: formData.semester,
           rollNumber: formData.rollNumber,
@@ -224,7 +346,7 @@ const UserDetails = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="John Doe"
+                    placeholder="Full Name"
                     className={`w-full p-3 pl-10 rounded-lg border bg-gray-900 text-white ${
                       errors.name
                         ? "border-red-500 focus:ring-red-500"
@@ -291,6 +413,70 @@ const UserDetails = () => {
                   <div className="text-red-500 text-sm mt-1 flex items-center">
                     <AlertTriangle size={16} className="mr-2" />
                     {errors.department}
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Course Dropdown - Dynamic based on department selection */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.15 }}
+                className="mb-4"
+              >
+                <label className="block text-gray-300 text-lg mb-2">
+                  Course
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <BookOpen size={18} className="text-gray-400" />
+                  </div>
+                  <select
+                    name="course"
+                    value={formData.course}
+                    onChange={handleChange}
+                    disabled={!formData.department}
+                    className={`w-full p-3 pl-10 rounded-lg border appearance-none bg-gray-900 text-white ${
+                      errors.course
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-700 focus:ring-orange-500"
+                    } focus:outline-none focus:ring-2 ${
+                      !formData.department ? "opacity-60 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    <option value="">Select Course</option>
+                    {availableCourses.map((course) => (
+                      <option key={course} value={course}>
+                        {course}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                {errors.course && (
+                  <div className="text-red-500 text-sm mt-1 flex items-center">
+                    <AlertTriangle size={16} className="mr-2" />
+                    {errors.course}
+                  </div>
+                )}
+                {formData.department && availableCourses.length === 0 && (
+                  <div className="text-yellow-500 text-sm mt-1 flex items-center">
+                    <AlertTriangle size={16} className="mr-2" />
+                    No courses available for this department
                   </div>
                 )}
               </motion.div>
@@ -414,7 +600,7 @@ const UserDetails = () => {
                   name="rollNumber"
                   value={formData.rollNumber}
                   onChange={handleChange}
-                  placeholder="E.g., CS2021035"
+                  placeholder="Enter your Full Roll Number"
                   className={`w-full p-3 rounded-lg border bg-gray-900 text-white ${
                     errors.rollNumber
                       ? "border-red-500 focus:ring-red-500"
