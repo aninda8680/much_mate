@@ -3,12 +3,18 @@ import { useCart } from "../context/CartContext"; // Update this path as needed
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiPrinter, FiDownload, FiArrowLeft } from "react-icons/fi";
+import { meta } from "@eslint/js";
+import.meta.env.VITE_RAZORPAY_KEY_ID
+import.meta.env.VITE_RAZORPAY_SECRET_KEY;
+
 
 const Invoice = () => {
   const { cart } = useCart();
   const invoiceRef = useRef(null);
   const [qrCode, setQrCode] = useState(null);
   const [paymentId, setPaymentId] = useState(null);
+  const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+  const razorpaySecret = import.meta.env.VITE_RAZORPAY_SECRET_KEY;
 
   // Group identical items together (same as in Cart component)
   const groupedItems = cart.reduce((acc, item) => {
@@ -48,7 +54,7 @@ const Invoice = () => {
   const handlePayment = () => {
     // Replace these values with your actual Razorpay key and order details
     const options = {
-      key: "rzp_test_your_key_here", // Replace with your actual Razorpay key
+      key: razorpayKey, // Replace with your actual Razorpay key
       amount: parseFloat(totalPrice) * 100, // Amount in smallest currency unit (paise for INR)
       currency: "INR",
       name: "Your Business Name",
