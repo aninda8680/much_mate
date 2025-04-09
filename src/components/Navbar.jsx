@@ -13,15 +13,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useNavigate, useLocation } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore"; // Import Firestore functions
+import { db, auth } from "../config"; // Adjust the path as needed
+import { onAuthStateChanged } from "firebase/auth"; // Import auth state change listener
 
 gsap.registerPlugin(ScrollToPlugin);
 
-const Navbar = ({ isAdmin, currentUser }) => {
+const Navbar = ({ isAdmin }) => {
   // State management
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState("Home");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Router hooks
   const navigate = useNavigate();
@@ -38,16 +44,42 @@ const Navbar = ({ isAdmin, currentUser }) => {
     []
   );
 
-  // User data (replace with actual data source)
-  const userData = currentUser || {
-    name: "Shreyas Saha",
-    email: "shreyassaha00@gmail.com",
-    contactNumber: "7439361373",
-    department: "Computer Science",
-    rollNumber: "UG/02/BTCSE/2023/096",
-    section: "B",
-    semester: "4th Semester",
-  };
+  // Listen for auth state changes and fetch user data from Firestore
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setCurrentUser(user);
+        try {
+          // Fetch user profile from userProfiles collection
+          const userDocRef = doc(db, "userProfiles", user.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            setUserData(userDoc.data());
+          } else {
+            console.log("No user profile found for this user");
+            // Use basic info from auth user as fallback
+            setUserData({ 
+              name: user.displayName || "User",
+              email: user.email || "",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setCurrentUser(null);
+        setUserData(null);
+        setLoading(false);
+        // Redirect to login if not logged in
+        navigate("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   // Set active menu item based on current path
   useEffect(() => {
@@ -95,11 +127,35 @@ const Navbar = ({ isAdmin, currentUser }) => {
   };
 
   // Handle sign out
-  const handleSignOut = () => {
-    console.log("Signing out");
-    navigate("/");
-    setShowProfileDropdown(false);
+  const handleSignOut = async () => {
+    try {
+      await auth.signOut();
+      navigate("/");
+      setShowProfileDropdown(false);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
+
+  // Show loading indicator while fetching user data
+  if (loading) {
+    return (
+      <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-[90%] md:w-4/5 lg:w-3/4 bg-black/75 backdrop-blur-md rounded-2xl py-4 px-6 flex justify-between items-center border border-orange-500/20">
+        <div className="cursor-pointer relative">
+          <span className="text-2xl font-bold text-white relative">
+            <span className="bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
+              Munch
+            </span>
+            <span className="text-white">Mate</span>
+          </span>
+        </div>
+        <div className="flex items-center">
+          <div className="h-5 w-5 border-t-2 border-r-2 border-orange-500 rounded-full animate-spin mr-2"></div>
+          <p className="text-orange-400 text-sm">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.nav
@@ -158,7 +214,7 @@ const Navbar = ({ isAdmin, currentUser }) => {
         <div className="hidden md:flex space-x-2 items-center">
           {isAdmin ? (
             <AdminButton onClick={() => navigate("/admin/menu")} />
-          ) : (
+          ) : userData ? (
             <ProfileDropdown
               userData={userData}
               isOpen={showProfileDropdown}
@@ -168,6 +224,15 @@ const Navbar = ({ isAdmin, currentUser }) => {
               onEditProfile={() => navigate("/UserDetails")}
               onSignOut={handleSignOut}
             />
+          ) : (
+            <motion.button
+              onClick={() => navigate("/")}
+              className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-4 py-2 rounded-full"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Sign In
+            </motion.button>
           )}
         </div>
 
@@ -187,7 +252,7 @@ const Navbar = ({ isAdmin, currentUser }) => {
 
       {/* Mobile Menu */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && userData && (
           <MobileMenu
             userData={userData}
             menuItems={menuItems}
@@ -274,10 +339,11 @@ const ProfileDropdown = ({
       whileTap={{ scale: 0.95 }}
     >
       <FiUser className="inline-block" />
-      <span>{userData.name.split(" ")[0]}</span>
+      <span>{userData.name ? userData.name.split(" ")[0] : "User"}</span>
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}
         transition={{ duration: 0.3 }}
+        className="ml-1 text-orange-300"
       >
         <FiChevronDown />
       </motion.div>
@@ -297,26 +363,49 @@ const ProfileDropdown = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 10, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className="absolute right-0 mt-2 w-64 bg-black/90 backdrop-blur-md shadow-lg rounded-xl p-4 z-50 border border-orange-500/20 text-white"
+          className="absolute right-0 mt-2 w-72 bg-black/90 backdrop-blur-md shadow-lg shadow-orange-500/10 rounded-xl p-4 z-50 border border-orange-500/20 text-white"
         >
           <div className="flex flex-col space-y-3">
-            <div className="border-b border-orange-500/20 pb-2">
-              <h3 className="font-bold text-orange-400">{userData.name}</h3>
-              <p className="text-sm text-gray-300">{userData.email}</p>
+            <div className="border-b border-orange-500/20 pb-3">
+              <h3 className="font-bold text-orange-400 text-lg">{userData.name}</h3>
+              <div className="grid grid-cols-1 gap-1 mt-2">
+                <div className="flex items-center text-sm">
+                  <span className="text-orange-400/80 w-16">Email:</span>
+                  <span className="text-gray-300 text-xs truncate">{userData.email}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <span className="text-orange-400/80 w-16">Contact:</span>
+                  <span className="text-gray-300">{userData.contactNumber}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <span className="text-orange-400/80 w-16">Roll No:</span>
+                  <span className="text-gray-300">{userData.rollNumber}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <span className="text-orange-400/80 w-16">Semester:</span>
+                  <span className="text-gray-300">{userData.semester}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <span className="text-orange-400/80 w-16">Section:</span>
+                  <span className="text-gray-300">{userData.section}</span>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-between items-center">
               <motion.button
                 onClick={onEditProfile}
-                className="text-orange-400 hover:text-orange-300 text-sm py-1 px-3 rounded-md bg-white/5 hover:bg-white/10"
+                className="text-white text-sm py-1.5 px-4 rounded-md bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400"
                 whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Edit Profile
               </motion.button>
               <motion.button
                 onClick={onSignOut}
-                className="text-white hover:text-gray-200 text-sm py-1 px-3 rounded-md bg-orange-600/20 hover:bg-orange-600/40"
+                className="text-white text-sm py-1.5 px-4 rounded-md bg-black border border-orange-500/30 hover:bg-orange-950/50"
                 whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Sign Out
               </motion.button>
@@ -351,7 +440,7 @@ const MobileMenu = ({
       </div>
       <div className="text-left">
         <h3 className="font-bold text-orange-400">
-          {userData.name.split(" ")[0]}
+          {userData.name ? userData.name.split(" ")[0] : "User"}
         </h3>
         <p className="text-xs text-gray-400 truncate">{userData.email}</p>
       </div>
@@ -379,6 +468,22 @@ const MobileMenu = ({
           <span>{item.name}</span>
         </motion.a>
       ))}
+    </div>
+
+    {/* Additional User Info */}
+    <div className="text-xs border-t border-orange-500/20 pt-3 space-y-1.5">
+      <div className="flex items-center">
+        <span className="text-orange-400/80 w-16">Roll No:</span>
+        <span className="text-gray-300">{userData.rollNumber}</span>
+      </div>
+      <div className="flex items-center">
+        <span className="text-orange-400/80 w-16">Section:</span>
+        <span className="text-gray-300">{userData.section}</span>
+      </div>
+      <div className="flex items-center">
+        <span className="text-orange-400/80 w-16">Semester:</span>
+        <span className="text-gray-300">{userData.semester}</span>
+      </div>
     </div>
 
     {/* Action Buttons */}
