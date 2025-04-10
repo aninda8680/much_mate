@@ -155,16 +155,12 @@ const Navbar = ({ isAdmin }) => {
                 className="flex items-center space-x-2 bg-gradient-to-r from-orange-600 to-black text-white px-4 py-2 rounded-full"
               >
                 <FiUser />
-                <span>{userData.name ? userData.name.split(" ")[0] : "User"}</span>
+                <span>Profile</span>
                 <FiChevronDown className={`transition-transform ${showProfileDropdown ? "rotate-180" : ""}`} />
               </button>
 
               {showProfileDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-black/90 backdrop-blur-md shadow-lg rounded-xl p-4 z-50 border border-orange-500/20 text-white">
-                  <div className="border-b border-orange-500/20 pb-2 mb-2">
-                    <h3 className="font-bold text-orange-400">{userData.name}</h3>
-                    <p className="text-xs text-gray-300 truncate">{userData.email}</p>
-                  </div>
+                <div className="absolute right-0 mt-2 w-48 bg-black/90 backdrop-blur-md shadow-lg rounded-xl p-2 z-50 border border-orange-500/20 text-white">
                   <button
                     onClick={() => navigate("/profile")}
                     className="text-white text-sm py-1.5 px-4 rounded-md text-left hover:bg-orange-500/20 w-full flex items-center space-x-2"
@@ -210,8 +206,7 @@ const Navbar = ({ isAdmin }) => {
               <FiUser className="text-orange-400" />
             </div>
             <div className="text-left">
-              <h3 className="font-bold text-orange-400">{userData.name ? userData.name.split(" ")[0] : "User"}</h3>
-              <p className="text-xs text-gray-400 truncate">{userData.email}</p>
+              <p className="font-bold text-orange-400">Profile</p>
             </div>
           </div>
 
@@ -236,7 +231,7 @@ const Navbar = ({ isAdmin }) => {
               className="flex items-center space-x-3 py-2 px-3 rounded-lg text-gray-300 hover:bg-orange-500/10 hover:text-orange-400"
             >
               <span className="text-lg"><FiUser /></span>
-              <span>Profile</span>
+              <span>View Profile</span>
             </a>
           </div>
 
