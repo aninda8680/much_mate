@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import UserNavbar from "./components/Navbar";
+import AdminNavbar from "./components/AdminNavbar";
 import Hero from "./components/Hero";
 import Menu from "./components/Menu";
 import AdminMenu from "./components/AdminMenu";
@@ -27,31 +28,36 @@ function App() {
 
   // Check if current path is the landing page, sign in, or sign up page
   const isLandingPage = location.pathname === "/";
-  const isAuthPage = ["/signin", "/signup","/userdetails"].includes(location.pathname);
+  const isAuthPage = ["/signin", "/signup", "/userdetails"].includes(location.pathname);
 
   return (
     <CartProvider>
       <div className="App">
-        {/* Only render Navbar when NOT on landing or auth pages */}
-        {!isLandingPage && !isAuthPage && <Navbar isAdmin={isAdmin} />}
+        {/* Render appropriate Navbar based on path */}
+        {!isLandingPage && !isAuthPage && (
+          isAdmin ? <AdminNavbar /> : <UserNavbar />
+        )}
+        
         <Routes>
           {/* Landing route */}
           <Route path="/" element={<Landing />} />
-          {/* After login, redirect to Hero */}
+          
+          {/* User routes */}
           <Route path="/home" element={<Hero />} />
-          {/* Other routes */}
           <Route path="/menu" element={<Menu />} />
           <Route path="/about" element={<About />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/invoice" element={<Invoice />} />
           <Route path="/userdetails" element={<UserDetails />} />
-          <Route path="/admin/menu" element={<AdminMenu />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/signin" element={<SignIn />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/profile" element={<UserProfile />} />
-
-          {/* Fallback route */}
+          
+          {/* Auth routes */}
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<SignIn />} />
+          
+          {/* Admin routes */}
+          <Route path="/admin/menu" element={<AdminMenu />} />
         </Routes>
       </div>
     </CartProvider>
