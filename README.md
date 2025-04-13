@@ -35,7 +35,7 @@ git clone https://github.com/yourusername/munchmate.git
 2. Install dependencies:
 
 ```bash
-cd munchmate
+cd munch_mate
 npm install
 ```
 
@@ -92,6 +92,8 @@ MunchMate/
 
 - **Atanu Saha** - Frontend Developer
 - **Shreyas Saha** - Full-Stack Developer
+- **Aninda Debta** - UI/UX Developer
+  
 
 ## Acknowledgments 🙏
 
